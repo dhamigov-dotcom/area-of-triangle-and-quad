@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STEAM Mind Learning Hub — Equal Area Theorems Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-950:#050e22;
+    --navy-900:#0a1a38;
+    --navy-850:#0d2145;
+    --navy-800:#12285a;
+    --navy-700:#1a3572;
+    --navy-line:#12386b;
+    --ink:#eef3fc;
+    --muted:#96a8ce;
+    --muted-dim:#5d6f95;
+    --paper:#f6f8fc;
+    --green:#22c37f;
+    --green-dark:#12915c;
+    --green-glow:rgba(34,195,127,.35);
+    --gold:#f2b705;
+    --gold-dark:#c99000;
+    --red:#ef5b6a;
+    --grid:rgba(147,178,232,.08);
+    --radius:14px;
+    --shadow-lg:0 20px 45px rgba(3,9,26,.45);
+    --font-display:'Space Grotesk',sans-serif;
+    --font-body:'IBM Plex Sans',sans-serif;
+    --font-mono:'IBM Plex Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    font-family:var(--font-body);
+    background:
+      radial-gradient(ellipse at 20% -10%, #123064 0%, transparent 55%),
+      radial-gradient(ellipse at 100% 0%, #0f2a5c 0%, transparent 45%),
+      var(--navy-950);
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--gold);}
+  button{font-family:var(--font-body);}
+
+  /* ===== MARQUEE ===== */
+  .marquee-bar{
+    background:var(--navy-950);
+    border-bottom:1px solid var(--navy-line);
+    overflow:hidden;
+    white-space:nowrap;
+    padding:6px 0;
+    position:relative;
+  }
+  .marquee-bar.bottom{border-bottom:none;border-top:1px solid var(--navy-line);}
+  .marquee-track{
+    display:inline-flex;
+    animation:scrollLeft 26s linear infinite;
+  }
+  .marquee-track span{
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:.06em;
+    color:var(--muted);
+    padding-right:60px;
+  }
+  .marquee-track span b{color:var(--gold);font-weight:600;}
+  @keyframes scrollLeft{
+    from{transform:translateX(0);}
+    to{transform:translateX(-50%);}
+  }
+
+  /* ===== HEADER ===== */
+  .app-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+    padding:18px 28px;
+    background:linear-gradient(180deg,var(--navy-900),var(--navy-850));
+  }
+  .brand-block{display:flex;align-items:center;gap:14px;min-width:0;}
+  .brand-mark{
+    width:44px;height:44px;flex:none;
+    border-radius:10px;
+    background:linear-gradient(135deg,var(--green),var(--green-dark));
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 18px var(--green-glow);
+  }
+  .brand-mark svg{width:24px;height:24px;}
+  .brand-text h1{
+    font-family:var(--font-display);
+    font-size:clamp(16px,2.4vw,24px);
+    letter-spacing:.02em;
+    margin:0;
+    line-height:1.15;
+    white-space:nowrap;
+  }
+  .brand-text p{
+    margin:2px 0 0;
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+  }
+  .header-right{display:flex;align-items:center;gap:20px;min-width:0;}
+  .green-divider{
+    width:2px;
+    align-self:stretch;
+    background:linear-gradient(180deg,transparent,var(--green),transparent);
+    flex:none;
+  }
+  .credit-block{font-size:12.5px;color:var(--muted);line-height:1.55;min-width:0;}
+  .credit-block .designer{color:var(--ink);font-weight:600;font-family:var(--font-display);font-size:14px;}
+  .credit-block .tagline{color:var(--gold);font-style:italic;}
+  .credit-block .site a{
+    color:var(--ink);
+    text-decoration:none;
+    border-bottom:1px dashed var(--muted-dim);
+    font-family:var(--font-mono);
+    font-size:12px;
+  }
+  .credit-block .site a:hover{color:var(--gold);border-color:var(--gold);}
+
+  .navy-rule{height:4px;background:linear-gradient(90deg,var(--navy-950),#0e3a86,var(--navy-950));box-shadow:0 2px 10px rgba(0,0,0,.4);}
+
+  html.lang-np, html.lang-np *{font-family:'Noto Sans Devanagari','IBM Plex Sans',sans-serif !important;}
+
+  .lang-toggle{
+    display:flex;align-items:center;gap:0;flex:none;
+    background:var(--navy-950);
+    border:1px solid var(--navy-line);
+    border-radius:999px;
+    padding:3px;
+  }
+  .lang-toggle button{
+    border:none;background:transparent;color:var(--muted);
+    font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.04em;
+    padding:6px 13px;border-radius:999px;cursor:pointer;transition:.18s ease;
+  }
+  .lang-toggle button.active{background:var(--green);color:var(--navy-950);}
+  .lang-toggle button:not(.active):hover{color:var(--ink);}
+
+  /* ===== BODY LAYOUT ===== */
+  .app-body{
+    flex:1;
+    display:flex;
+    min-height:0;
+  }
+  .sidebar{
+    width:250px;
+    flex:none;
+    background:var(--navy-900);
+    border-right:2px solid var(--navy-line);
+    padding:22px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    overflow-y:auto;
+  }
+  .sidebar h2{
+    font-family:var(--font-display);
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--muted-dim);
+    margin:0 4px;
+  }
+  .scene-btn{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    width:100%;
+    text-align:left;
+    padding:12px 12px;
+    border-radius:12px;
+    border:1px solid var(--navy-line);
+    background:var(--navy-850);
+    color:var(--ink);
+    cursor:pointer;
+    transition:.18s ease;
+  }
+  .scene-btn:hover{border-color:var(--green);transform:translateY(-1px);}
+  .scene-btn.active{
+    background:linear-gradient(135deg,var(--navy-800),var(--navy-700));
+    border-color:var(--green);
+    box-shadow:0 0 0 1px var(--green) inset, 0 8px 20px rgba(0,0,0,.35);
+  }
+  .scene-btn .icon{
+    width:34px;height:34px;flex:none;
+    border-radius:8px;
+    background:var(--navy-950);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .scene-btn.active .icon{background:var(--green);}
+  .scene-btn .icon svg{width:20px;height:20px;stroke:var(--green);}
+  .scene-btn.active .icon svg{stroke:var(--navy-950);}
+  .scene-btn .label{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .scene-btn .label b{font-size:13px;font-family:var(--font-display);}
+  .scene-btn .label span{font-size:11px;color:var(--muted);}
+
+  .legend-card{
+    margin-top:auto;
+    background:var(--navy-850);
+    border:1px solid var(--navy-line);
+    border-radius:12px;
+    padding:14px;
+    font-size:12px;
+    color:var(--muted);
+    line-height:1.6;
+  }
+  .legend-card h3{margin:0 0 8px;font-family:var(--font-display);font-size:12px;color:var(--ink);letter-spacing:.05em;}
+  .legend-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+  .swatch-box{width:14px;height:14px;border-radius:3px;flex:none;}
+  .swatch-box.g{background:var(--green);}
+  .swatch-box.o{background:transparent;border:2px solid var(--paper);}
+
+  /* ===== MAIN STAGE AREA ===== */
+  .stage-area{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+    padding:18px 24px 24px;
+    gap:14px;
+    overflow-y:auto;
+  }
+  .scene-heading{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:10px;}
+  .scene-heading h2{font-family:var(--font-display);font-size:clamp(18px,2.4vw,24px);margin:0;}
+  .scene-heading p{margin:2px 0 0;color:var(--muted);font-size:13px;max-width:560px;}
+  .pill{
+    font-family:var(--font-mono);font-size:11px;color:var(--navy-950);
+    background:var(--gold);padding:4px 10px;border-radius:999px;font-weight:600;letter-spacing:.03em;
+  }
+
+  /* ===== ANNOTATION TOOLBAR ===== */
+  .ann-toolbar{
+    display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+    background:var(--navy-900);
+    border:1px solid var(--navy-line);
+    border-radius:12px;
+    padding:8px 10px;
+  }
+  .ann-toolbar .grp-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-dim);padding:0 6px;font-family:var(--font-display);}
+  .tool-btn{
+    display:flex;align-items:center;gap:6px;
+    background:var(--navy-850);
+    border:1px solid var(--navy-line);
+    color:var(--muted);
+    padding:7px 11px;
+    border-radius:9px;
+    cursor:pointer;
+    font-size:12px;
+    transition:.15s ease;
+  }
+  .tool-btn svg{width:15px;height:15px;stroke:currentColor;flex:none;}
+  .tool-btn:hover{color:var(--ink);border-color:var(--muted-dim);}
+  .tool-btn.active{background:var(--green);border-color:var(--green);color:var(--navy-950);font-weight:600;}
+  .tool-btn.active.erase-active{background:var(--red);border-color:var(--red);}
+  .tool-btn.danger:hover{border-color:var(--red);color:var(--red);}
+  .swatch-group{display:flex;align-items:center;gap:6px;}
+  .swatch{
+    width:20px;height:20px;border-radius:50%;
+    border:2px solid rgba(255,255,255,.15);
+    cursor:pointer;
+  }
+  .swatch.selected{border-color:var(--ink);transform:scale(1.15);}
+  .color-input{
+    width:24px;height:24px;border:none;background:none;cursor:pointer;padding:0;border-radius:50%;overflow:hidden;
+  }
+  .toolbar-sep{width:1px;align-self:stretch;background:var(--navy-line);margin:0 2px;}
+
+  /* ===== SCENE CONTROLS ===== */
+  .scene-controls{
+    display:flex;flex-wrap:wrap;gap:14px;align-items:center;
+    background:var(--navy-900);
+    border:1px solid var(--navy-line);
+    border-radius:12px;
+    padding:12px 16px;
+  }
+  .ctrl-group{display:flex;flex-direction:column;gap:4px;}
+  .ctrl-group label{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-dim);}
+  .ctrl-group input[type=range]{width:150px;accent-color:var(--green);}
+  .area-readout{display:flex;gap:16px;flex-wrap:wrap;}
+  .area-chip{
+    font-family:var(--font-mono);font-size:12px;
+    background:var(--navy-850);border:1px solid var(--navy-line);
+    border-radius:8px;padding:6px 10px;color:var(--ink);
+  }
+  .area-chip b{color:var(--green);}
+  .btn-primary,.btn-secondary{
+    border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;
+    cursor:pointer;font-family:var(--font-display);letter-spacing:.02em;
+    display:flex;align-items:center;gap:8px;border:none;
+  }
+  .btn-primary{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#03150d;box-shadow:0 8px 18px var(--green-glow);}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-primary:active{transform:translateY(1px);}
+  .btn-secondary{background:var(--navy-850);color:var(--muted);border:1px solid var(--navy-line);}
+  .btn-secondary:hover{color:var(--ink);border-color:var(--muted-dim);}
+  .btn-primary svg,.btn-secondary svg{width:15px;height:15px;stroke:currentColor;}
+  .ctrl-spacer{flex:1;}
+
+  /* ===== STAGE / SVG ===== */
+  .stage-wrap{
+    position:relative;
+    flex:1;
+    min-height:420px;
+    border-radius:16px;
+    border:1px solid var(--navy-line);
+    background:
+      repeating-linear-gradient(0deg, var(--grid) 0 1px, transparent 1px 34px),
+      repeating-linear-gradient(90deg, var(--grid) 0 1px, transparent 1px 34px),
+      linear-gradient(160deg,#0c1f42,#0a1731);
+    box-shadow:var(--shadow-lg) inset;
+    overflow:hidden;
+  }
+  .stage{display:none;width:100%;height:100%;}
+  .stage.active{display:block;}
+  .stage svg{width:100%;height:100%;display:block;}
+  .annotation-canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;pointer-events:none;}
+  .annotation-canvas.live{pointer-events:auto;cursor:crosshair;}
+
+  .guide-line{stroke:#3d5c99;stroke-width:2;stroke-dasharray:2 6;}
+  .shape{stroke-width:2.5;touch-action:none;}
+  .shape-green{fill:var(--green);fill-opacity:.62;stroke:var(--green);}
+  .shape-outline{fill:var(--paper);fill-opacity:.06;stroke:var(--paper);}
+  .shape-diagonal{stroke:var(--gold);stroke-width:2;stroke-dasharray:5 6;fill:none;opacity:.75;}
+  .handle{fill:var(--navy-950);stroke:var(--ink);stroke-width:2.5;cursor:grab;touch-action:none;}
+  .handle:active{cursor:grabbing;}
+  .handle.h-green{stroke:var(--green);}
+  .handle.h-outline{stroke:var(--paper);}
+  .handle.h-shift{stroke:var(--gold);}
+  .vlabel{font-family:var(--font-mono);font-size:16px;font-weight:600;fill:var(--ink);}
+  .vlabel.g{fill:var(--green);}
+  .vlabel.o{fill:var(--paper);}
+  .axis-label{font-family:var(--font-mono);font-size:11px;fill:var(--muted-dim);}
+
+  .flyer-shape{opacity:.9;filter:drop-shadow(0 10px 16px rgba(0,0,0,.45));}
+  .flyer-trail{opacity:.3;transition:opacity .5s ease;pointer-events:none;}
+  .landed-pulse{animation:landPulse .55s ease;transform-box:fill-box;transform-origin:center;}
+  @keyframes landPulse{0%{transform:scale(1);}45%{transform:scale(1.06);}100%{transform:scale(1);}}
+
+  .result-toast{
+    position:absolute;left:50%;bottom:18px;transform:translate(-50%,20px);
+    background:var(--navy-950);border:1px solid var(--green);
+    color:var(--ink);padding:12px 20px;border-radius:12px;
+    font-size:13px;max-width:min(560px,90%);text-align:center;line-height:1.5;
+    box-shadow:0 14px 30px rgba(0,0,0,.5);
+    opacity:0;pointer-events:none;transition:.35s ease;
+    font-family:var(--font-body);
+  }
+  .result-toast b{color:var(--green);}
+  .result-toast.show{opacity:1;transform:translate(-50%,0);}
+
+  .proof-note{
+    background:var(--navy-900);
+    border:1px dashed var(--navy-line);
+    border-radius:12px;
+    padding:12px 16px;
+    font-size:12.5px;
+    color:var(--muted);
+    line-height:1.6;
+  }
+  .proof-note b{color:var(--ink);}
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width:900px){
+    .app-header{flex-direction:column;align-items:flex-start;gap:12px;}
+    .header-right{width:100%;}
+    .app-body{flex-direction:column;}
+    .sidebar{
+      width:100%;border-right:none;border-bottom:2px solid var(--navy-line);
+      flex-direction:row;overflow-x:auto;align-items:center;padding:14px 12px;
+    }
+    .sidebar h2{display:none;}
+    .scene-btn{width:auto;flex:none;min-width:190px;}
+    .legend-card{display:none;}
+    .stage-wrap{min-height:340px;}
+  }
+  @media (max-width:560px){
+    .ctrl-group input[type=range]{width:110px;}
+    .brand-text p{display:none;}
+  }
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--navy-700);border-radius:8px;}
+</style>
+</head>
+<body>
+
+<!-- ===================== TOP MARQUEE ===================== -->
+<div class="marquee-bar top">
+  <div class="marquee-track" id="marqueeTop">
+    <span data-i18n="marquee">© 2026 <b>Govind Bhadur Dhami</b> — Visualize, Realize and Learn — <b>www.govindbdhami.com.np</b></span>
+    <span data-i18n="marquee">© 2026 <b>Govind Bhadur Dhami</b> — Visualize, Realize and Learn — <b>www.govindbdhami.com.np</b></span>
+  </div>
+</div>
+
+<!-- ===================== HEADER ===================== -->
+<header class="app-header">
+  <div class="brand-block">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#04140c" stroke-width="2" stroke-linejoin="round"><path d="M3 20 L12 4 L21 20 Z"/></svg>
+    </div>
+    <div class="brand-text">
+      <h1 data-i18n="headerTitle">WELCOME TO THE STEAM MIND LEARNING HUB</h1>
+      <p data-i18n="headerSub">Interactive Geometry &amp; Equal-Area Theorem Lab</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="lang-toggle" id="langToggle">
+      <button type="button" class="active" data-lang="en">EN</button>
+      <button type="button" data-lang="np">नेपाली</button>
+    </div>
+    <div class="green-divider"></div>
+    <div class="credit-block">
+      <div class="designer" data-i18n="designedBy">Designed By: Govind Bhadur Dhami</div>
+      <div class="tagline" data-i18n="tagline">Visualize, realize and learn</div>
+      <div class="site"><span data-i18n="website">Website:</span> <a href="https://www.govindbdhami.com.np" target="_blank" rel="noopener">www.govindbdhami.com.np</a></div>
+    </div>
+  </div>
+</header>
+
+<div class="navy-rule"></div>
+
+<!-- ===================== BODY ===================== -->
+<div class="app-body">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <h2 data-i18n="navSimulations">Simulations</h2>
+
+    <button class="scene-btn active" data-scene="triangle" id="navTriangle">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linejoin="round"><path d="M3 19 L12 5 L21 19 Z"/></svg></span>
+      <span class="label"><b data-i18n="navTriangleTitle">Triangles · Same Base</b><span data-i18n="navTriangleSub">Equal area proof</span></span>
+    </button>
+
+    <button class="scene-btn" data-scene="parallelogram" id="navParallelogram">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linejoin="round"><path d="M5 19 L9 5 L21 5 L17 19 Z"/></svg></span>
+      <span class="label"><b data-i18n="navParallelogramTitle">Parallelograms · Same Base</b><span data-i18n="navParallelogramSub">Equal area proof</span></span>
+    </button>
+
+    <button class="scene-btn" data-scene="half" id="navHalf">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linejoin="round"><path d="M4 19 L8 5 L20 5 L16 19 Z M4 19 L20 5"/></svg></span>
+      <span class="label"><b data-i18n="navHalfTitle">Triangle = ½ Parallelogram</b><span data-i18n="navHalfSub">Same base &amp; parallels</span></span>
+    </button>
+
+    <div class="legend-card">
+      <h3 data-i18n="legendTitle">Reading the figure</h3>
+      <div class="legend-row"><span class="swatch-box g"></span> <span data-i18n="legendA">Shape A — the reference figure</span></div>
+      <div class="legend-row"><span class="swatch-box o"></span> <span data-i18n="legendB">Shape B — the comparison figure</span></div>
+      <div class="legend-row"><span data-i18n="legendDrag">🡒 Drag any labeled vertex to reshape the figure live.</span></div>
+      <div class="legend-row"><span data-i18n="legendCompare">🡒 Press Compare to watch the equal-area proof fly into place.</span></div>
+    </div>
+  </nav>
+
+  <!-- MAIN STAGE -->
+  <main class="stage-area">
+
+    <div class="scene-heading">
+      <div>
+        <h2 id="sceneTitle">Triangles on the Same Base, Between the Same Parallels</h2>
+        <p id="sceneDesc">Two triangles share base AB. Their apexes C and D both sit on the same line, parallel to AB. Drag the points, then compare.</p>
+      </div>
+      <span class="pill" data-i18n="pill">STEAM · Geometry Lab</span>
+    </div>
+
+    <!-- ANNOTATION TOOLBAR -->
+    <div class="ann-toolbar">
+      <span class="grp-label" data-i18n="annLabel">Annotation</span>
+      <button class="tool-btn" id="btnSelect" title="Move / interact with shapes">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4 L11 19 L13.5 12.5 L20 10 Z"/></svg>
+        <span data-i18n="btnSelect">Select</span>
+      </button>
+      <button class="tool-btn" id="btnPen" title="Pen">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l3.5-1 11-11-2.5-2.5-11 11L3 21z"/><path d="M14 5l5 5"/></svg>
+        <span data-i18n="btnPen">Pen</span>
+      </button>
+      <button class="tool-btn" id="btnHighlight" title="Highlighter">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21h5"/><path d="M4 15l6-6 5 5-6 6H4v-5z"/><path d="M13 6l5 5 3-3-5-5-3 3z"/></svg>
+        <span data-i18n="btnHighlight">Highlight</span>
+      </button>
+      <button class="tool-btn" id="btnErase" title="Eraser">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21H8l-6-6 10-10 8 8-6 8z"/><path d="M13 5l6 6"/></svg>
+        <span data-i18n="btnErase">Erase</span>
+      </button>
+      <div class="toolbar-sep"></div>
+      <span class="grp-label" data-i18n="colorLabel">Color</span>
+      <div class="swatch-group" id="swatchGroup">
+        <span class="swatch selected" data-color="#1a2b4c" style="background:#1a2b4c"></span>
+        <span class="swatch" data-color="#ef5b6a" style="background:#ef5b6a"></span>
+        <span class="swatch" data-color="#22c37f" style="background:#22c37f"></span>
+        <span class="swatch" data-color="#f2b705" style="background:#f2b705"></span>
+        <span class="swatch" data-color="#f6f8fc" style="background:#f6f8fc"></span>
+        <input type="color" class="color-input" id="customColor" value="#1a2b4c" title="Custom color">
+      </div>
+      <div class="toolbar-sep"></div>
+      <button class="tool-btn danger" id="btnClearAll" title="Clear all annotation">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg>
+        <span data-i18n="btnClearAll">Clear All</span>
+      </button>
+    </div>
+
+    <!-- SCENE CONTROLS -->
+    <div class="scene-controls">
+      <div class="ctrl-group">
+        <label data-i18n="sliderLabel">Distance Between Parallels</label>
+        <input type="range" id="topYSlider" min="90" max="260" value="150">
+      </div>
+      <div class="area-readout" id="areaReadout"></div>
+      <div class="ctrl-spacer"></div>
+      <button class="btn-secondary" id="btnReset">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 1 3 6.7"/><path d="M3 12V6"/><path d="M3 12h6"/></svg>
+        <span data-i18n="btnReset">Reset</span>
+      </button>
+      <button class="btn-primary" id="btnCompare">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+        <span data-i18n="btnCompare">Compare Areas</span>
+      </button>
+    </div>
+
+    <!-- STAGE WRAP -->
+    <div class="stage-wrap" id="stageWrap">
+
+      <!-- SCENE 1 : TRIANGLES -->
+      <div class="stage active" id="stageTriangle">
+        <svg id="svgTriangle" viewBox="0 0 760 460" preserveAspectRatio="xMidYMid meet">
+          <text class="axis-label" x="16" y="24">Same base AB · apexes C, D on a common parallel line</text>
+          <line class="guide-line" id="t-baseline"></line>
+          <line class="guide-line" id="t-topline"></line>
+          <polygon class="shape shape-outline" id="t-shape2"></polygon>
+          <polygon class="shape shape-green" id="t-shape1"></polygon>
+          <g id="t-flyer"></g>
+          <circle class="handle h-outline" id="t-handleD" r="9"></circle>
+          <circle class="handle h-green" id="t-handleC" r="9"></circle>
+          <circle class="handle" id="t-handleA" r="9"></circle>
+          <circle class="handle" id="t-handleB" r="9"></circle>
+          <text class="vlabel" id="t-labelA">A</text>
+          <text class="vlabel" id="t-labelB">B</text>
+          <text class="vlabel g" id="t-labelC">C</text>
+          <text class="vlabel o" id="t-labelD">D</text>
+        </svg>
+      </div>
+
+      <!-- SCENE 2 : PARALLELOGRAMS -->
+      <div class="stage" id="stageParallelogram">
+        <svg id="svgParallelogram" viewBox="0 0 760 460" preserveAspectRatio="xMidYMid meet">
+          <text class="axis-label" x="16" y="24">Same base AB · both parallelograms between the same parallels</text>
+          <line class="guide-line" id="p-baseline"></line>
+          <line class="guide-line" id="p-topline"></line>
+          <polygon class="shape shape-outline" id="p-shape2"></polygon>
+          <polygon class="shape shape-green" id="p-shape1"></polygon>
+          <g id="p-flyer"></g>
+          <circle class="handle h-outline h-shift" id="p-handleShift2" r="9"></circle>
+          <circle class="handle h-green h-shift" id="p-handleShift1" r="9"></circle>
+          <circle class="handle" id="p-handleA" r="9"></circle>
+          <circle class="handle" id="p-handleB" r="9"></circle>
+          <text class="vlabel" id="p-labelA">A</text>
+          <text class="vlabel" id="p-labelB">B</text>
+          <text class="vlabel g" id="p-labelC">C</text>
+          <text class="vlabel g" id="p-labelD">D</text>
+          <text class="vlabel o" id="p-labelE">E</text>
+          <text class="vlabel o" id="p-labelF">F</text>
+        </svg>
+      </div>
+
+      <!-- SCENE 3 : HALF AREA -->
+      <div class="stage" id="stageHalf">
+        <svg id="svgHalf" viewBox="0 0 760 460" preserveAspectRatio="xMidYMid meet">
+          <text class="axis-label" x="16" y="24">Triangle ABC and parallelogram ABFE share base AB and the same parallels</text>
+          <line class="guide-line" id="h-baseline"></line>
+          <line class="guide-line" id="h-topline"></line>
+          <polygon class="shape shape-outline" id="h-parallelogram"></polygon>
+          <polyline class="shape-diagonal" id="h-diagonal"></polyline>
+          <polygon class="shape shape-green" id="h-triangle"></polygon>
+          <g id="h-flyer"></g>
+          <circle class="handle h-outline h-shift" id="h-handleShift" r="9"></circle>
+          <circle class="handle h-green" id="h-handleC" r="9"></circle>
+          <circle class="handle" id="h-handleA" r="9"></circle>
+          <circle class="handle" id="h-handleB" r="9"></circle>
+          <text class="vlabel" id="h-labelA">A</text>
+          <text class="vlabel" id="h-labelB">B</text>
+          <text class="vlabel g" id="h-labelC">C</text>
+          <text class="vlabel o" id="h-labelE">E</text>
+          <text class="vlabel o" id="h-labelF">F</text>
+        </svg>
+      </div>
+
+      <canvas class="annotation-canvas" id="annCanvas"></canvas>
+      <div class="result-toast" id="resultToast"></div>
+    </div>
+
+    <div class="proof-note" id="proofNote">
+      <b>Why it works:</b> Triangles ABC and ABD sit on the same base AB and their apexes lie on a line parallel to AB, so both triangles have the same base length and the same perpendicular height — and area = ½ × base × height gives equal areas, whatever their shape.
+    </div>
+  </main>
+</div>
+
+<!-- ===================== BOTTOM MARQUEE ===================== -->
+<div class="marquee-bar bottom">
+  <div class="marquee-track" id="marqueeBottom">
+    <span data-i18n="marquee">© 2026 <b>Govind Bhadur Dhami</b> — Visualize, Realize and Learn — <b>www.govindbdhami.com.np</b></span>
+    <span data-i18n="marquee">© 2026 <b>Govind Bhadur Dhami</b> — Visualize, Realize and Learn — <b>www.govindbdhami.com.np</b></span>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ CONSTANTS ============ */
+  const VB_W = 760, VB_H = 460;
+  const BASE_Y = 380;
+  const X_MIN = 50, X_MAX = 710;
+  const MIN_GAP = 70;
+  const UNIT = 30; // px per "unit" for area display
+
+  /* ============ STATE ============ */
+  const scenes = {
+    triangle: { A:{x:150,y:BASE_Y}, B:{x:340,y:BASE_Y}, Cx:250, Dx:560, topY:150 },
+    parallelogram: { A:{x:130,y:BASE_Y}, B:{x:300,y:BASE_Y}, shift1:70, shift2:320, topY:150 },
+    half: { A:{x:140,y:BASE_Y}, B:{x:330,y:BASE_Y}, Cx:235, shift:290, topY:150 }
+  };
+  const defaults = JSON.parse(JSON.stringify(scenes));
+
+  let currentScene = 'triangle';
+  let currentLang = 'en';
+
+  /* ============ I18N ============ */
+  const i18n = {
+    en:{
+      headerTitle:'WELCOME TO THE STEAM MIND LEARNING HUB',
+      headerSub:'Interactive Geometry &amp; Equal-Area Theorem Lab',
+      designedBy:'Designed By: Govind Bhadur Dhami',
+      tagline:'Visualize, realize and learn',
+      website:'Website:',
+      marquee:'© 2026 <b>Govind Bhadur Dhami</b> — Visualize, Realize and Learn — <b>www.govindbdhami.com.np</b>',
+      navSimulations:'Simulations',
+      navTriangleTitle:'Triangles · Same Base',
+      navTriangleSub:'Equal area proof',
+      navParallelogramTitle:'Parallelograms · Same Base',
+      navParallelogramSub:'Equal area proof',
+      navHalfTitle:'Triangle = ½ Parallelogram',
+      navHalfSub:'Same base &amp; parallels',
+      legendTitle:'Reading the figure',
+      legendA:'Shape A — the reference figure',
+      legendB:'Shape B — the comparison figure',
+      legendDrag:'🡒 Drag any labeled vertex to reshape the figure live.',
+      legendCompare:'🡒 Press Compare to watch the equal-area proof fly into place.',
+      pill:'STEAM · Geometry Lab',
+      annLabel:'Annotation',
+      btnSelect:'Select',
+      btnPen:'Pen',
+      btnHighlight:'Highlight',
+      btnErase:'Erase',
+      colorLabel:'Color',
+      btnClearAll:'Clear All',
+      sliderLabel:'Distance Between Parallels',
+      btnReset:'Reset',
+      btnCompare:'Compare Areas',
+      sqUnits:'sq.u',
+      ratioLabel:'Ratio',
+      scenes:{
+        triangle:{
+          title:'Triangles on the Same Base, Between the Same Parallels',
+          desc:'Two triangles share base AB. Their apexes C and D both sit on the same line, parallel to AB. Drag the points, then compare.',
+          note:'<b>Why it works:</b> Triangles ABC and ABD sit on the same base AB and their apexes lie on a line parallel to AB, so both triangles have the same base length and the same perpendicular height — and area = ½ × base × height gives equal areas, whatever their shape.'
+        },
+        parallelogram:{
+          title:'Parallelograms on the Same Base, Between the Same Parallels',
+          desc:'Parallelogram ABDC and parallelogram ABFE share base AB, and their top edges lie on the same parallel line. Slide the top edges, then compare.',
+          note:'<b>Why it works:</b> Both parallelograms share base AB and have the same height (the distance between the two parallel lines). Since area = base × height, sliding the top edge sideways never changes the area.'
+        },
+        half:{
+          title:'A Triangle is Half a Parallelogram on the Same Base &amp; Parallels',
+          desc:'Triangle ABC and parallelogram ABFE share base AB and sit between the same parallels. Diagonal AF splits the parallelogram into two equal triangles — one of which matches ABC exactly.',
+          note:'<b>Why it works:</b> Diagonal AF cuts parallelogram ABFE into two congruent triangles, so △ABF = ½ · ▱ABFE. Triangle ABC shares base AB and height with △ABF, so △ABC = △ABF = ½ · ▱ABFE.'
+        }
+      },
+      toast:{
+        triangle:(a1)=>`<b>△ABC = △ABD = ${a1} sq. units.</b> Same base AB, same height between the parallels — the areas match exactly, no matter where C and D sit on the top line.`,
+        parallelogram:(a1)=>`<b>▱ABDC = ▱ABFE = ${a1} sq. units.</b> Both parallelograms share base AB and the same height between the parallels, so sliding the top edge never changes the area.`,
+        half:(aTri,aPara)=>`<b>△ABC = △ABF = ${aTri} sq. units.</b> Diagonal AF splits ▱ABFE into two equal triangles, so △ABC = ½ × ▱ABFE (${aPara} sq. units).`
+      }
+    },
+    np:{
+      headerTitle:'STEAM माइन्ड लर्निङ हबमा स्वागत छ',
+      headerSub:'अन्तरक्रियात्मक ज्यामिति र समान क्षेत्रफल प्रमेय प्रयोगशाला',
+      designedBy:'डिजाइन गर्ने: गोविन्द बहादुर धामी',
+      tagline:'देखौं, बुझौं र सिकौं',
+      website:'वेबसाइट:',
+      marquee:'© 2026 <b>गोविन्द बहादुर धामी</b> — देखौं, बुझौं र सिकौं — <b>www.govindbdhami.com.np</b>',
+      navSimulations:'सिमुलेसनहरू',
+      navTriangleTitle:'त्रिकोण · समान आधार',
+      navTriangleSub:'समान क्षेत्रफल प्रमाण',
+      navParallelogramTitle:'समानान्तर चतुर्भुज · समान आधार',
+      navParallelogramSub:'समान क्षेत्रफल प्रमाण',
+      navHalfTitle:'त्रिकोण = ½ समानान्तर चतुर्भुज',
+      navHalfSub:'समान आधार र समानान्तर रेखा',
+      legendTitle:'चित्र बुझ्ने तरिका',
+      legendA:'आकृति A — सन्दर्भ आकृति',
+      legendB:'आकृति B — तुलना आकृति',
+      legendDrag:'🡒 आकृति परिवर्तन गर्न कुनै पनि लेबल गरिएको बिन्दु तान्नुहोस्।',
+      legendCompare:"🡒 समान क्षेत्रफलको प्रमाण हेर्न 'तुलना गर्नुहोस्' थिच्नुहोस्।",
+      pill:'STEAM · ज्यामिति प्रयोगशाला',
+      annLabel:'टिप्पणी',
+      btnSelect:'छान्नुहोस्',
+      btnPen:'कलम',
+      btnHighlight:'हाइलाइट',
+      btnErase:'मेट्नुहोस्',
+      colorLabel:'रङ',
+      btnClearAll:'सबै मेट्नुहोस्',
+      sliderLabel:'समानान्तर रेखाहरू बीचको दूरी',
+      btnReset:'रिसेट',
+      btnCompare:'क्षेत्रफल तुलना गर्नुहोस्',
+      sqUnits:'व.ए.',
+      ratioLabel:'अनुपात',
+      scenes:{
+        triangle:{
+          title:'समान आधार र समानान्तर रेखाहरू बीचका त्रिकोणहरू',
+          desc:'दुई त्रिकोणले आधार AB साझा गर्छन्। तिनका शीर्ष बिन्दु C र D दुवै AB सँग समानान्तर रेखामा छन्। बिन्दुहरू तानेर तुलना गर्नुहोस्।',
+          note:'<b>किन यस्तो हुन्छ:</b> त्रिकोण ABC र ABD ले समान आधार AB र समानान्तर रेखाहरू बीच समान उचाइ पाउँछन्, त्यसैले क्षेत्रफल = ½ × आधार × उचाइ अनुसार दुवैको क्षेत्रफल बराबर हुन्छ, C र D जहाँसुकै भए पनि।'
+        },
+        parallelogram:{
+          title:'समान आधार र समानान्तर रेखाहरू बीचका समानान्तर चतुर्भुजहरू',
+          desc:'समानान्तर चतुर्भुज ABDC र ABFE ले आधार AB साझा गर्छन्, र तिनका माथिल्लो किनाराहरू एउटै समानान्तर रेखामा छन्। माथिल्लो किनारा सारेर तुलना गर्नुहोस्।',
+          note:'<b>किन यस्तो हुन्छ:</b> दुवै समानान्तर चतुर्भुजले आधार AB र समानान्तर रेखाहरू बीचको उचाइ साझा गर्छन्। क्षेत्रफल = आधार × उचाइ भएकाले माथिल्लो किनारा छेउतिर सारे पनि क्षेत्रफल परिवर्तन हुँदैन।'
+        },
+        half:{
+          title:'समान आधार र समानान्तर रेखामा त्रिकोण समानान्तर चतुर्भुजको आधा हुन्छ',
+          desc:'त्रिकोण ABC र समानान्तर चतुर्भुज ABFE ले आधार AB साझा गर्छन् र समानान्तर रेखाहरू बीच अवस्थित छन्। विकर्ण AF ले समानान्तर चतुर्भुजलाई दुई बराबर त्रिकोणमा विभाजन गर्छ — जसमध्ये एउटा ठ्याक्कै ABC सँग मिल्छ।',
+          note:'<b>किन यस्तो हुन्छ:</b> विकर्ण AF ले समानान्तर चतुर्भुज ABFE लाई दुई सर्वसम त्रिकोणमा काट्छ, त्यसैले △ABF = ½ · ▱ABFE। त्रिकोण ABC ले △ABF सँग आधार AB र उचाइ साझा गर्छ, त्यसैले △ABC = △ABF = ½ · ▱ABFE।'
+        }
+      },
+      toast:{
+        triangle:(a1)=>`<b>△ABC = △ABD = ${a1} वर्ग एकाइ।</b> समान आधार AB, समानान्तर रेखाहरू बीच समान उचाइ — C र D माथिल्लो रेखामा जहाँ भए पनि क्षेत्रफल ठ्याक्कै बराबर हुन्छ।`,
+        parallelogram:(a1)=>`<b>▱ABDC = ▱ABFE = ${a1} वर्ग एकाइ।</b> दुवै समानान्तर चतुर्भुजले आधार AB र समानान्तर रेखाहरू बीचको उचाइ साझा गर्छन्, त्यसैले माथिल्लो किनारा सारे पनि क्षेत्रफल बदलिँदैन।`,
+        half:(aTri,aPara)=>`<b>△ABC = △ABF = ${aTri} वर्ग एकाइ।</b> विकर्ण AF ले ▱ABFE लाई दुई बराबर त्रिकोणमा विभाजन गर्छ, त्यसैले △ABC = ½ × ▱ABFE (${aPara} वर्ग एकाइ)।`
+      }
+    }
+  };
+
+  function applyLanguage(lang){
+    currentLang = lang;
+    document.documentElement.lang = lang;
+    document.documentElement.classList.toggle('lang-np', lang==='np');
+    document.querySelectorAll('#langToggle button').forEach(b=> b.classList.toggle('active', b.dataset.lang===lang));
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const key = el.getAttribute('data-i18n');
+      const val = i18n[lang][key];
+      if(val !== undefined) el.innerHTML = val;
+    });
+    document.getElementById('sceneTitle').innerHTML = i18n[lang].scenes[currentScene].title;
+    document.getElementById('sceneDesc').innerHTML = i18n[lang].scenes[currentScene].desc;
+    document.getElementById('proofNote').innerHTML = i18n[lang].scenes[currentScene].note;
+    renderers[currentScene]();
+  }
+
+  const sceneMeta = i18n.en.scenes;
+
+  /* ============ HELPERS ============ */
+  function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+
+  function polyArea(pts){
+    let a = 0;
+    for(let i=0;i<pts.length;i++){
+      const p1 = pts[i], p2 = pts[(i+1)%pts.length];
+      a += p1.x*p2.y - p2.x*p1.y;
+    }
+    return Math.abs(a/2) / (UNIT*UNIT);
+  }
+
+  function setPoly(id, pts){
+    document.getElementById(id).setAttribute('points', pts.map(p=>`${p.x},${p.y}`).join(' '));
+  }
+  function setLine(id, x1,y1,x2,y2){
+    const el = document.getElementById(id);
+    el.setAttribute('x1',x1); el.setAttribute('y1',y1);
+    el.setAttribute('x2',x2); el.setAttribute('y2',y2);
+  }
+  function setPolyline(id, pts){
+    document.getElementById(id).setAttribute('points', pts.map(p=>`${p.x},${p.y}`).join(' '));
+  }
+  function setCircle(id, x, y){
+    const el = document.getElementById(id);
+    el.setAttribute('cx',x); el.setAttribute('cy',y);
+  }
+  function setLabel(id, x, y, dy){
+    const el = document.getElementById(id);
+    el.setAttribute('x', x);
+    el.setAttribute('y', y + (dy||0));
+  }
+
+  function svgPoint(evt, svg){
+    const pt = svg.createSVGPoint();
+    pt.x = evt.clientX; pt.y = evt.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
+  function makeDraggable(svgId, handleId, onDrag){
+    const svg = document.getElementById(svgId);
+    const handle = document.getElementById(handleId);
+    handle.addEventListener('pointerdown', function(e){
+      e.preventDefault();
+      handle.setPointerCapture(e.pointerId);
+      function move(ev){ onDrag(svgPoint(ev, svg)); }
+      function up(ev){
+        try{ handle.releasePointerCapture(e.pointerId); }catch(err){}
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up);
+      }
+      window.addEventListener('pointermove', move);
+      window.addEventListener('pointerup', up);
+    });
+  }
+
+  function easeInOutCubic(t){ return t<0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
+
+  function flyShape(flyerGroupId, src, tgt, colorVar, duration, onDone){
+    const group = document.getElementById(flyerGroupId);
+    group.innerHTML = '';
+    const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    poly.setAttribute('class','flyer-shape');
+    poly.style.fill = colorVar;
+    group.appendChild(poly);
+    const start = performance.now();
+    let lastTrail = 0;
+
+    function frame(now){
+      const t = Math.min(1, (now-start)/duration);
+      const e = easeInOutCubic(t);
+      const arc = Math.sin(Math.PI*t) * 36;
+      const pts = src.map((p,i)=>{
+        const tp = tgt[i];
+        return { x: p.x + (tp.x-p.x)*e, y: p.y + (tp.y-p.y)*e - arc };
+      });
+      poly.setAttribute('points', pts.map(p=>`${p.x},${p.y}`).join(' '));
+      if(now-lastTrail>65 && t<0.92){
+        spawnTrail(group, poly.getAttribute('points'), colorVar);
+        lastTrail = now;
+      }
+      if(t<1){ requestAnimationFrame(frame); }
+      else{
+        poly.classList.add('landed-pulse');
+        setTimeout(()=>{ group.innerHTML=''; }, 1500);
+        if(onDone) onDone();
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function spawnTrail(group, pointsAttr, colorVar){
+    const ghost = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    ghost.setAttribute('points', pointsAttr);
+    ghost.setAttribute('class','flyer-trail');
+    ghost.style.fill = colorVar;
+    group.appendChild(ghost);
+    requestAnimationFrame(()=>{ ghost.style.opacity = 0; });
+    setTimeout(()=>{ if(ghost.parentNode) ghost.remove(); }, 480);
+  }
+
+  let toastTimer = null;
+  function showToast(html){
+    const toast = document.getElementById('resultToast');
+    toast.innerHTML = html;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> toast.classList.remove('show'), 5200);
+  }
+
+  const GREEN = getComputedStyle(document.documentElement).getPropertyValue('--green').trim() || '#22c37f';
+
+  /* ============ RENDER: TRIANGLE SCENE ============ */
+  function renderTriangle(){
+    const s = scenes.triangle;
+    const A = s.A, B = s.B, topY = s.topY;
+    const C = { x:s.Cx, y:topY }, D = { x:s.Dx, y:topY };
+
+    setPoly('t-shape1',[A,B,C]);
+    setPoly('t-shape2',[A,B,D]);
+    setLine('t-baseline', X_MIN, BASE_Y, X_MAX, BASE_Y);
+    setLine('t-topline', X_MIN, topY, X_MAX, topY);
+
+    setCircle('t-handleA', A.x, A.y);
+    setCircle('t-handleB', B.x, B.y);
+    setCircle('t-handleC', C.x, C.y);
+    setCircle('t-handleD', D.x, D.y);
+
+    setLabel('t-labelA', A.x-16, A.y, 24);
+    setLabel('t-labelB', B.x+8, B.y, 24);
+    setLabel('t-labelC', C.x-4, C.y, -14);
+    setLabel('t-labelD', D.x-4, D.y, -14);
+
+    const a1 = polyArea([A,B,C]), a2 = polyArea([A,B,D]);
+    const u = i18n[currentLang].sqUnits;
+    document.getElementById('areaReadout').innerHTML =
+      `<span class="area-chip">△ABC = <b>${a1.toFixed(1)}</b> ${u}</span>`+
+      `<span class="area-chip">△ABD = <b>${a2.toFixed(1)}</b> ${u}</span>`;
+  }
+
+  function compareTriangle(){
+    const s = scenes.triangle;
+    const A = s.A, B = s.B, topY = s.topY;
+    const C = { x:s.Cx, y:topY }, D = { x:s.Dx, y:topY };
+    const a1 = polyArea([A,B,C]), a2 = polyArea([A,B,D]);
+    const src = [A,B,C,C];
+    const tgt = [A,B,D,D];
+    flyShape('t-flyer', src, tgt, GREEN, 1250, ()=>{
+      showToast(i18n[currentLang].toast.triangle(a1.toFixed(1)));
+    });
+  }
+
+  /* ============ RENDER: PARALLELOGRAM SCENE ============ */
+  function renderParallelogram(){
+    const s = scenes.parallelogram;
+    const A = s.A, B = s.B, topY = s.topY;
+    const width = B.x - A.x;
+    const C = { x:A.x+s.shift1, y:topY }, D = { x:B.x+s.shift1, y:topY };
+    const E = { x:A.x+s.shift2, y:topY }, F = { x:B.x+s.shift2, y:topY };
+
+    setPoly('p-shape1',[A,B,D,C]);
+    setPoly('p-shape2',[A,B,F,E]);
+    setLine('p-baseline', X_MIN, BASE_Y, X_MAX, BASE_Y);
+    setLine('p-topline', X_MIN, topY, X_MAX, topY);
+
+    setCircle('p-handleA', A.x, A.y);
+    setCircle('p-handleB', B.x, B.y);
+    setCircle('p-handleShift1', (C.x+D.x)/2, topY);
+    setCircle('p-handleShift2', (E.x+F.x)/2, topY);
+
+    setLabel('p-labelA', A.x-16, A.y, 24);
+    setLabel('p-labelB', B.x+8, B.y, 24);
+    setLabel('p-labelC', C.x-16, C.y, -10);
+    setLabel('p-labelD', D.x+6, D.y, -10);
+    setLabel('p-labelE', E.x-16, E.y, -10);
+    setLabel('p-labelF', F.x+6, F.y, -10);
+
+    const a1 = polyArea([A,B,D,C]), a2 = polyArea([A,B,F,E]);
+    const u = i18n[currentLang].sqUnits;
+    document.getElementById('areaReadout').innerHTML =
+      `<span class="area-chip">▱ABDC = <b>${a1.toFixed(1)}</b> ${u}</span>`+
+      `<span class="area-chip">▱ABFE = <b>${a2.toFixed(1)}</b> ${u}</span>`;
+
+    // stash for handlers / compare
+    scenes.parallelogram._pts = {A,B,C,D,E,F,width};
+  }
+
+  function compareParallelogram(){
+    renderParallelogram();
+    const p = scenes.parallelogram._pts;
+    const a1 = polyArea([p.A,p.B,p.D,p.C]);
+    const src = [p.A,p.B,p.D,p.C];
+    const tgt = [p.A,p.B,p.F,p.E];
+    flyShape('p-flyer', src, tgt, GREEN, 1300, ()=>{
+      showToast(i18n[currentLang].toast.parallelogram(a1.toFixed(1)));
+    });
+  }
+
+  /* ============ RENDER: HALF-AREA SCENE ============ */
+  function renderHalf(){
+    const s = scenes.half;
+    const A = s.A, B = s.B, topY = s.topY;
+    const C = { x:s.Cx, y:topY };
+    const E = { x:A.x+s.shift, y:topY }, F = { x:B.x+s.shift, y:topY };
+
+    setPoly('h-triangle',[A,B,C]);
+    setPoly('h-parallelogram',[A,B,F,E]);
+    setPolyline('h-diagonal',[A,F]);
+    setLine('h-baseline', X_MIN, BASE_Y, X_MAX, BASE_Y);
+    setLine('h-topline', X_MIN, topY, X_MAX, topY);
+
+    setCircle('h-handleA', A.x, A.y);
+    setCircle('h-handleB', B.x, B.y);
+    setCircle('h-handleC', C.x, C.y);
+    setCircle('h-handleShift', (E.x+F.x)/2, topY);
+
+    setLabel('h-labelA', A.x-16, A.y, 24);
+    setLabel('h-labelB', B.x+8, B.y, 24);
+    setLabel('h-labelC', C.x-4, C.y, -14);
+    setLabel('h-labelE', E.x-16, E.y, -10);
+    setLabel('h-labelF', F.x+6, F.y, -10);
+
+    const aTri = polyArea([A,B,C]);
+    const aPara = polyArea([A,B,F,E]);
+    const u = i18n[currentLang].sqUnits, rl = i18n[currentLang].ratioLabel;
+    document.getElementById('areaReadout').innerHTML =
+      `<span class="area-chip">△ABC = <b>${aTri.toFixed(1)}</b> ${u}</span>`+
+      `<span class="area-chip">▱ABFE = <b>${aPara.toFixed(1)}</b> ${u}</span>`+
+      `<span class="area-chip">${rl} = <b>1 : ${(aPara/aTri).toFixed(2)}</b></span>`;
+
+    scenes.half._pts = {A,B,C,E,F};
+  }
+
+  function compareHalf(){
+    renderHalf();
+    const p = scenes.half._pts;
+    const aTri = polyArea([p.A,p.B,p.C]);
+    const aPara = polyArea([p.A,p.B,p.F,p.E]);
+    const src = [p.A,p.B,p.C,p.C];
+    const tgt = [p.A,p.B,p.F,p.F];
+    flyShape('h-flyer', src, tgt, GREEN, 1300, ()=>{
+      showToast(i18n[currentLang].toast.half(aTri.toFixed(1), aPara.toFixed(1)));
+    });
+  }
+
+  /* ============ SCENE SWITCHING ============ */
+  const renderers = { triangle:renderTriangle, parallelogram:renderParallelogram, half:renderHalf };
+  const comparers = { triangle:compareTriangle, parallelogram:compareParallelogram, half:compareHalf };
+
+  function switchScene(name){
+    currentScene = name;
+    document.querySelectorAll('.scene-btn').forEach(b=> b.classList.toggle('active', b.dataset.scene===name));
+    document.querySelectorAll('.stage').forEach(s=> s.classList.remove('active'));
+    document.getElementById('stage'+capitalize(name)).classList.add('active');
+    const meta = i18n[currentLang].scenes[name];
+    document.getElementById('sceneTitle').innerHTML = meta.title;
+    document.getElementById('sceneDesc').innerHTML = meta.desc;
+    document.getElementById('proofNote').innerHTML = meta.note;
+    document.getElementById('topYSlider').value = scenes[name].topY;
+    document.getElementById('resultToast').classList.remove('show');
+    renderers[name]();
+  }
+  function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+  document.querySelectorAll('.scene-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> switchScene(btn.dataset.scene));
+  });
+
+  /* ============ SLIDER / COMPARE / RESET ============ */
+  document.getElementById('topYSlider').addEventListener('input', function(e){
+    scenes[currentScene].topY = clamp(parseFloat(e.target.value), 90, 260);
+    renderers[currentScene]();
+  });
+  document.getElementById('btnCompare').addEventListener('click', ()=> comparers[currentScene]());
+  document.getElementById('btnReset').addEventListener('click', ()=>{
+    scenes[currentScene] = JSON.parse(JSON.stringify(defaults[currentScene]));
+    document.getElementById('topYSlider').value = scenes[currentScene].topY;
+    document.getElementById('resultToast').classList.remove('show');
+    renderers[currentScene]();
+  });
+
+  /* ============ DRAG WIRING ============ */
+  // Triangle
+  makeDraggable('svgTriangle','t-handleA', pt=>{ scenes.triangle.A.x = clamp(pt.x, X_MIN, scenes.triangle.B.x-MIN_GAP); renderTriangle(); });
+  makeDraggable('svgTriangle','t-handleB', pt=>{ scenes.triangle.B.x = clamp(pt.x, scenes.triangle.A.x+MIN_GAP, X_MAX); renderTriangle(); });
+  makeDraggable('svgTriangle','t-handleC', pt=>{ scenes.triangle.Cx = clamp(pt.x, X_MIN, X_MAX); renderTriangle(); });
+  makeDraggable('svgTriangle','t-handleD', pt=>{ scenes.triangle.Dx = clamp(pt.x, X_MIN, X_MAX); renderTriangle(); });
+
+  // Parallelogram
+  makeDraggable('svgParallelogram','p-handleA', pt=>{ scenes.parallelogram.A.x = clamp(pt.x, X_MIN, scenes.parallelogram.B.x-MIN_GAP); renderParallelogram(); });
+  makeDraggable('svgParallelogram','p-handleB', pt=>{ scenes.parallelogram.B.x = clamp(pt.x, scenes.parallelogram.A.x+MIN_GAP, X_MAX); renderParallelogram(); });
+  makeDraggable('svgParallelogram','p-handleShift1', pt=>{
+    const s = scenes.parallelogram;
+    const width = s.B.x - s.A.x;
+    let cx = clamp(pt.x - width/2, X_MIN, X_MAX-width);
+    s.shift1 = cx - s.A.x;
+    renderParallelogram();
+  });
+  makeDraggable('svgParallelogram','p-handleShift2', pt=>{
+    const s = scenes.parallelogram;
+    const width = s.B.x - s.A.x;
+    let cx = clamp(pt.x - width/2, X_MIN, X_MAX-width);
+    s.shift2 = cx - s.A.x;
+    renderParallelogram();
+  });
+
+  // Half
+  makeDraggable('svgHalf','h-handleA', pt=>{ scenes.half.A.x = clamp(pt.x, X_MIN, scenes.half.B.x-MIN_GAP); renderHalf(); });
+  makeDraggable('svgHalf','h-handleB', pt=>{ scenes.half.B.x = clamp(pt.x, scenes.half.A.x+MIN_GAP, X_MAX); renderHalf(); });
+  makeDraggable('svgHalf','h-handleC', pt=>{ scenes.half.Cx = clamp(pt.x, X_MIN, X_MAX); renderHalf(); });
+  makeDraggable('svgHalf','h-handleShift', pt=>{
+    const s = scenes.half;
+    const width = s.B.x - s.A.x;
+    let ex = clamp(pt.x - width/2, X_MIN, X_MAX-width);
+    s.shift = ex - s.A.x;
+    renderHalf();
+  });
+
+  /* ============ ANNOTATION CANVAS ============ */
+  const canvas = document.getElementById('annCanvas');
+  const ctx = canvas.getContext('2d');
+  const stageWrap = document.getElementById('stageWrap');
+  let strokes = [];
+  let currentTool = 'none'; // 'none' | 'pen' | 'highlight' | 'erase'
+  let currentColor = '#1a2b4c';
+  let drawing = false;
+  let activeStroke = null;
+
+  function resizeCanvas(){
+    const rect = stageWrap.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.max(1, rect.width * dpr);
+    canvas.height = Math.max(1, rect.height * dpr);
+    canvas.style.width = rect.width+'px';
+    canvas.style.height = rect.height+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    redrawStrokes();
+  }
+  window.addEventListener('resize', debounce(resizeCanvas, 120));
+
+  function debounce(fn, ms){
+    let t; return function(){ clearTimeout(t); t = setTimeout(fn, ms); };
+  }
+
+  function styleFor(tool){
+    if(tool==='pen') return { alpha:1, width:3, comp:'source-over' };
+    if(tool==='highlight') return { alpha:.32, width:16, comp:'source-over' };
+    if(tool==='erase') return { alpha:1, width:28, comp:'destination-out' };
+    return { alpha:1, width:3, comp:'source-over' };
+  }
+
+  function redrawStrokes(){
+    const rect = stageWrap.getBoundingClientRect();
+    ctx.clearRect(0,0,rect.width,rect.height);
+    strokes.forEach(st=>{
+      if(st.pts.length<2) return;
+      ctx.save();
+      ctx.globalAlpha = st.alpha;
+      ctx.globalCompositeOperation = st.comp;
+      ctx.strokeStyle = st.color;
+      ctx.lineWidth = st.width;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      st.pts.forEach((p,i)=>{
+        const x = p.xr*rect.width, y = p.yr*rect.height;
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      });
+      ctx.stroke();
+      ctx.restore();
+    });
+  }
+
+  function canvasPointFromEvent(e){
+    const rect = stageWrap.getBoundingClientRect();
+    return { xr:(e.clientX-rect.left)/rect.width, yr:(e.clientY-rect.top)/rect.height };
+  }
+
+  canvas.addEventListener('pointerdown', e=>{
+    if(currentTool==='none') return;
+    drawing = true;
+    canvas.setPointerCapture(e.pointerId);
+    const sty = styleFor(currentTool);
+    activeStroke = { color: currentColor, alpha: sty.alpha, width: sty.width, comp: sty.comp, pts:[canvasPointFromEvent(e)] };
+    strokes.push(activeStroke);
+  });
+  canvas.addEventListener('pointermove', e=>{
+    if(!drawing || !activeStroke) return;
+    activeStroke.pts.push(canvasPointFromEvent(e));
+    redrawStrokes();
+  });
+  function endStroke(e){
+    if(!drawing) return;
+    drawing = false;
+    activeStroke = null;
+    try{ canvas.releasePointerCapture(e.pointerId); }catch(err){}
+  }
+  canvas.addEventListener('pointerup', endStroke);
+  canvas.addEventListener('pointerleave', endStroke);
+
+  function setTool(tool){
+    currentTool = tool;
+    canvas.classList.toggle('live', tool!=='none');
+    document.querySelectorAll('#btnSelect,#btnPen,#btnHighlight,#btnErase').forEach(b=>{
+      b.classList.remove('active','erase-active');
+    });
+    if(tool==='pen') document.getElementById('btnPen').classList.add('active');
+    else if(tool==='highlight') document.getElementById('btnHighlight').classList.add('active');
+    else if(tool==='erase') document.getElementById('btnErase').classList.add('active','erase-active');
+    else document.getElementById('btnSelect').classList.add('active');
+  }
+
+  document.getElementById('btnSelect').addEventListener('click', ()=> setTool('none'));
+  document.getElementById('btnPen').addEventListener('click', ()=> setTool('pen'));
+  document.getElementById('btnHighlight').addEventListener('click', ()=> setTool('highlight'));
+  document.getElementById('btnErase').addEventListener('click', ()=> setTool('erase'));
+  document.getElementById('btnClearAll').addEventListener('click', ()=>{
+    strokes = [];
+    redrawStrokes();
+  });
+
+  document.querySelectorAll('.swatch').forEach(sw=>{
+    sw.addEventListener('click', ()=>{
+      document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('selected'));
+      sw.classList.add('selected');
+      currentColor = sw.dataset.color;
+      document.getElementById('customColor').value = currentColor;
+    });
+  });
+  document.getElementById('customColor').addEventListener('input', e=>{
+    currentColor = e.target.value;
+    document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('selected'));
+  });
+
+  /* ============ LANGUAGE TOGGLE WIRING ============ */
+  document.querySelectorAll('#langToggle button').forEach(btn=>{
+    btn.addEventListener('click', ()=> applyLanguage(btn.dataset.lang));
+  });
+
+  /* ============ INIT ============ */
+  setTool('none');
+  renderTriangle();
+  applyLanguage('en');
+  window.addEventListener('load', resizeCanvas);
+  // in case load already fired
+  requestAnimationFrame(resizeCanvas);
+
+})();
+</script>
+</body>
+</html>
