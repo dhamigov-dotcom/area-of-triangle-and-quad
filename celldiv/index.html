@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STEAM Mind Learning Hub — Mitosis: Cell Division</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#071229;
+    --bg-deep:#040b1c;
+    --panel:#0c1c3a;
+    --panel-2:#112a52;
+    --line-navy:#2c4d90;
+    --line-navy-soft:#1c3260;
+    --green:#2fd66b;
+    --gold:#f2b705;
+    --cyan:#56e0c9;
+    --coral:#ff6f6f;
+    --text:#eef3fb;
+    --muted:#8ea3c9;
+    --muted-dim:#5c6f96;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(1200px 700px at 20% -10%, #0e2148 0%, var(--bg) 45%, var(--bg-deep) 100%);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  ::selection{ background:var(--gold); color:#101a2e; }
+  a{ color:var(--cyan); }
+
+  button{ font-family:inherit; cursor:pointer; }
+  button:focus-visible, .navbtn:focus-visible, .tool:focus-visible{
+    outline:2px solid var(--gold);
+    outline-offset:2px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .ticker-track{ animation:none !important; }
+    .stage-scene{ transition:none !important; }
+    .pulse{ animation:none !important; }
+  }
+
+  /* ---------- Ticker ---------- */
+  .ticker{
+    background:var(--bg-deep);
+    border-bottom:1px solid var(--line-navy-soft);
+    overflow:hidden;
+    white-space:nowrap;
+    padding:6px 0;
+    flex-shrink:0;
+  }
+  .ticker.bottom{ border-bottom:none; border-top:1px solid var(--line-navy-soft); }
+  .ticker-track{
+    display:inline-flex;
+    animation:scrollTicker 26s linear infinite;
+    gap:60px;
+  }
+  .ticker-track span{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:.08em;
+    color:var(--muted);
+    text-transform:uppercase;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+  }
+  .ticker-track span::after{ content:"◆"; color:var(--green); font-size:9px; margin-left:60px; }
+  @keyframes scrollTicker{
+    from{ transform:translateX(0); }
+    to{ transform:translateX(-50%); }
+  }
+
+  /* ---------- Header ---------- */
+  header.top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    padding:18px 28px;
+    background:linear-gradient(180deg, #0a1d40, #081733);
+    flex-wrap:wrap;
+  }
+  .brand-title{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:clamp(18px,2.4vw,28px);
+    letter-spacing:.02em;
+    margin:0;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .brand-title .glyph{
+    color:var(--cyan);
+    font-size:1.1em;
+    filter:drop-shadow(0 0 6px rgba(86,224,201,.6));
+  }
+  .header-right{
+    display:flex;
+    align-items:center;
+    gap:22px;
+  }
+  .green-divider{
+    width:2px;
+    height:34px;
+    background:var(--green);
+    box-shadow:0 0 8px rgba(47,214,107,.7);
+    flex-shrink:0;
+  }
+  .designer-credit{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--muted);
+    display:flex;
+    flex-direction:column;
+    line-height:1.4;
+  }
+  .designer-credit strong{ color:var(--text); font-weight:600; }
+  .designer-credit a{ color:var(--cyan); text-decoration:none; }
+  .designer-credit a:hover{ text-decoration:underline; }
+
+  .navy-rule{
+    height:3px;
+    background:linear-gradient(90deg, transparent, var(--line-navy) 12%, var(--line-navy) 88%, transparent);
+    box-shadow:0 0 10px rgba(44,77,144,.55);
+    flex-shrink:0;
+  }
+
+  /* ---------- Layout ---------- */
+  .layout{
+    flex:1;
+    display:flex;
+    min-height:0;
+  }
+
+  /* ---------- Sidebar ---------- */
+  nav.sidebar{
+    width:230px;
+    flex-shrink:0;
+    background:var(--panel);
+    border-right:2px solid var(--line-navy);
+    padding:22px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .sidebar-eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:.16em;
+    color:var(--muted-dim);
+    text-transform:uppercase;
+    margin:0 0 6px 4px;
+  }
+  .navbtn{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    width:100%;
+    text-align:left;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px solid transparent;
+    background:transparent;
+    color:var(--muted);
+    font-size:13.5px;
+    font-weight:500;
+    transition:background .18s ease, color .18s ease, border-color .18s ease;
+  }
+  .navbtn .num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--muted-dim);
+    width:18px;
+  }
+  .navbtn:hover{ background:var(--panel-2); color:var(--text); }
+  .navbtn.active{
+    background:linear-gradient(90deg, rgba(86,224,201,.16), rgba(86,224,201,.03));
+    border-color:var(--cyan);
+    color:var(--text);
+    font-weight:600;
+  }
+  .navbtn.active .num{ color:var(--cyan); }
+  .navbtn.disabled{
+    opacity:.4;
+    cursor:not-allowed;
+  }
+  .navbtn .soon{
+    margin-left:auto;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:9px;
+    letter-spacing:.08em;
+    color:var(--muted-dim);
+    border:1px solid var(--line-navy-soft);
+    padding:2px 6px;
+    border-radius:999px;
+  }
+  .sidebar-divider{ height:1px; background:var(--line-navy-soft); margin:10px 0; }
+  .sidebar-foot{
+    margin-top:auto;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color:var(--muted-dim);
+    line-height:1.6;
+  }
+
+  /* ---------- Main ---------- */
+  main.stage-area{
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    padding:20px 26px 26px;
+    gap:16px;
+    overflow-y:auto;
+  }
+
+  .topic-heading{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .topic-heading h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:clamp(20px,2.6vw,28px);
+    margin:0;
+    font-weight:600;
+  }
+  .topic-heading .phase-tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:.08em;
+    color:var(--bg-deep);
+    background:var(--cyan);
+    padding:5px 12px;
+    border-radius:999px;
+    font-weight:600;
+  }
+
+  /* ---------- Annotation toolbar ---------- */
+  .toolbar{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+    background:var(--panel);
+    border:1px solid var(--line-navy-soft);
+    border-radius:12px;
+    padding:10px 12px;
+  }
+  .toolbar .group{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding-right:10px;
+    border-right:1px solid var(--line-navy-soft);
+  }
+  .toolbar .group:last-child{ border-right:none; padding-right:0; }
+  .tool{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:var(--panel-2);
+    color:var(--muted);
+    border:1px solid transparent;
+    padding:8px 12px;
+    border-radius:8px;
+    font-size:12.5px;
+    font-weight:500;
+    font-family:'IBM Plex Mono', monospace;
+    transition:all .15s ease;
+  }
+  .tool:hover{ color:var(--text); border-color:var(--line-navy); }
+  .tool.active{
+    color:#0a1730;
+    background:var(--cyan);
+    border-color:var(--cyan);
+  }
+  .tool.danger:hover{ color:#ffb3b3; border-color:var(--coral); }
+  .swatch{
+    width:22px; height:22px;
+    border-radius:50%;
+    border:2px solid rgba(255,255,255,.15);
+    cursor:pointer;
+    padding:0;
+    transition:transform .12s ease, border-color .12s ease;
+  }
+  .swatch:hover{ transform:scale(1.12); }
+  .swatch.selected{ border-color:#fff; box-shadow:0 0 0 2px var(--bg); }
+  .stroke-range{
+    accent-color:var(--cyan);
+    width:70px;
+  }
+  .toolbar label.small{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color:var(--muted-dim);
+  }
+
+  /* ---------- Stage viewer ---------- */
+  .viewer-shell{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--line-navy-soft);
+    border-radius:16px;
+    overflow:hidden;
+    flex:1;
+    min-height:380px;
+    display:flex;
+    flex-direction:column;
+  }
+  .viewer-canvas-wrap{
+    position:relative;
+    flex:1;
+    min-height:320px;
+  }
+  .stage-scene{
+    position:absolute;
+    inset:0;
+    opacity:0;
+    transform:scale(.97);
+    transition:opacity .55s ease, transform .55s ease;
+    pointer-events:none;
+  }
+  .stage-scene.active{
+    opacity:1;
+    transform:scale(1);
+  }
+  .stage-scene svg{ width:100%; height:100%; display:block; }
+  #annotationCanvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    touch-action:none;
+    cursor:crosshair;
+  }
+  .pulse{ animation:pulseGlow 2.6s ease-in-out infinite; }
+  @keyframes pulseGlow{
+    0%,100%{ filter:drop-shadow(0 0 2px currentColor); }
+    50%{ filter:drop-shadow(0 0 9px currentColor); }
+  }
+
+  .stage-footer{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:14px 18px;
+    border-top:1px solid var(--line-navy-soft);
+    background:var(--bg-deep);
+    flex-wrap:wrap;
+  }
+  .stage-controls{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .ctrl-btn{
+    background:var(--panel-2);
+    border:1px solid var(--line-navy-soft);
+    color:var(--text);
+    width:34px; height:34px;
+    border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px;
+  }
+  .ctrl-btn:hover{ border-color:var(--cyan); color:var(--cyan); }
+  #playBtn.playing{ color:var(--gold); border-color:var(--gold); }
+
+  .stage-dots{ display:flex; gap:6px; }
+  .stage-dots button{
+    width:9px; height:9px;
+    border-radius:50%;
+    background:var(--line-navy-soft);
+    border:none;
+    padding:0;
+  }
+  .stage-dots button.active{ background:var(--cyan); box-shadow:0 0 6px var(--cyan); }
+
+  .stage-desc{
+    font-size:13px;
+    color:var(--muted);
+    line-height:1.5;
+    flex:1;
+    min-width:220px;
+  }
+  .stage-desc strong{ color:var(--text); }
+
+  .legend{
+    display:flex;
+    gap:14px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--muted);
+    flex-shrink:0;
+  }
+  .legend span{ display:flex; align-items:center; gap:6px; }
+  .legend i{ width:10px; height:10px; border-radius:50%; display:inline-block; }
+
+  footer.site-footer{ flex-shrink:0; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:820px){
+    .layout{ flex-direction:column; }
+    nav.sidebar{
+      width:100%;
+      border-right:none;
+      border-bottom:2px solid var(--line-navy);
+      flex-direction:row;
+      overflow-x:auto;
+      gap:8px;
+    }
+    .sidebar-eyebrow, .sidebar-foot, .sidebar-divider{ display:none; }
+    .navbtn{ width:auto; white-space:nowrap; }
+    header.top{ flex-direction:column; align-items:flex-start; }
+    .header-right{ width:100%; justify-content:flex-start; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Top scrolling copyright ticker -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span>Visualize, realize and learn — website: www.govindbdhami.com.np</span>
+      <span>Visualize, realize and learn — website: www.govindbdhami.com.np</span>
+      <span>Visualize, realize and learn — website: www.govindbdhami.com.np</span>
+      <span>Visualize, realize and learn — website: www.govindbdhami.com.np</span>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="top">
+    <h1 class="brand-title"><span class="glyph">⬡</span>WELCOME TO THE STEAM MIND LEARNING HUB</h1>
+    <div class="header-right">
+      <div class="green-divider"></div>
+      <div class="designer-credit">
+        <strong>Designed By: Govind Bhadur Dhami</strong>
+        <span>Visualize, realize and learn — <a href="https://www.govindbdhami.com.np" target="_blank" rel="noopener">www.govindbdhami.com.np</a></span>
+      </div>
+    </div>
+  </header>
+  <div class="navy-rule"></div>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <nav class="sidebar" aria-label="STEAM topics">
+      <p class="sidebar-eyebrow">Topics</p>
+      <button class="navbtn active" id="btnMitosis">
+        <span class="num">01</span> Mitosis: Cell Division
+      </button>
+      <button class="navbtn disabled" disabled>
+        <span class="num">02</span> Photosynthesis <span class="soon">soon</span>
+      </button>
+      <button class="navbtn disabled" disabled>
+        <span class="num">03</span> Newton's Laws <span class="soon">soon</span>
+      </button>
+      <button class="navbtn disabled" disabled>
+        <span class="num">04</span> Chemical Bonding <span class="soon">soon</span>
+      </button>
+      <div class="sidebar-divider"></div>
+      <p class="sidebar-foot">More STEAM simulations are added regularly to the hub. Select an active topic to begin exploring.</p>
+    </nav>
+
+    <!-- Main stage -->
+    <main class="stage-area">
+      <div class="topic-heading">
+        <h1>Mitosis — Cell Division</h1>
+        <span class="phase-tag" id="phaseTag">Stage 1 / 6 — Interphase</span>
+      </div>
+
+      <!-- Annotation toolbar -->
+      <div class="toolbar" role="toolbar" aria-label="Annotation tools">
+        <div class="group">
+          <button class="tool active" data-tool="pen" id="toolPen">✎ Pen</button>
+          <button class="tool" data-tool="highlight" id="toolHighlight">▧ Highlight</button>
+          <button class="tool" data-tool="erase" id="toolErase">⌫ Erase</button>
+        </div>
+        <div class="group">
+          <button class="swatch selected" style="background:#ffffff" data-color="#ffffff" aria-label="White"></button>
+          <button class="swatch" style="background:#56e0c9" data-color="#56e0c9" aria-label="Cyan"></button>
+          <button class="swatch" style="background:#ff6f6f" data-color="#ff6f6f" aria-label="Coral"></button>
+          <button class="swatch" style="background:#f2b705" data-color="#f2b705" aria-label="Gold"></button>
+          <button class="swatch" style="background:#2fd66b" data-color="#2fd66b" aria-label="Green"></button>
+          <input type="color" id="customColor" title="Custom color" style="width:26px;height:26px;border:none;background:none;padding:0;cursor:pointer;">
+        </div>
+        <div class="group">
+          <label class="small" for="strokeSize">width</label>
+          <input type="range" class="stroke-range" id="strokeSize" min="1" max="24" value="3">
+        </div>
+        <div class="group">
+          <button class="tool danger" id="clearAll">✕ Clear All</button>
+        </div>
+      </div>
+
+      <!-- Stage viewer -->
+      <div class="viewer-shell">
+        <div class="viewer-canvas-wrap" id="viewerWrap">
+
+          <!-- Stage 1: Interphase -->
+          <div class="stage-scene active" data-stage="0">
+            <svg viewBox="0 0 700 460" preserveAspectRatio="xMidYMid meet">
+              <circle cx="350" cy="230" r="150" fill="#0f2549" stroke="#2c4d90" stroke-width="2.5"/>
+              <circle cx="350" cy="230" r="95" fill="#132c58" stroke="#cfe3ff" stroke-width="1.6" opacity=".85"/>
+              <g class="pulse" style="color:#56e0c9" transform="translate(300,215) rotate(18)">
+                <rect x="-26" y="-4" width="52" height="8" rx="4" fill="#56e0c9"/>
+              </g>
+              <g class="pulse" style="color:#ff6f6f" transform="translate(405,250) rotate(-14)">
+                <rect x="-26" y="-4" width="52" height="8" rx="4" fill="#ff6f6f"/>
+              </g>
+              <text x="350" y="60" text-anchor="middle" fill="#eef3fb" font-family="IBM Plex Mono" font-size="15" font-weight="600">MOTHER CELL — 2 chromosomes</text>
+              <text x="350" y="410" text-anchor="middle" fill="#8ea3c9" font-family="IBM Plex Mono" font-size="13">Interphase — chromosomes exist as thin, uncoiled chromatin threads</text>
+            </svg>
+          </div>
+
+          <!-- Stage 2: Prophase -->
+          <div class="stage-scene" data-stage="1">
+            <svg viewBox="0 0 700 460" preserveAspectRatio="xMidYMid meet">
+              <circle cx="350" cy="230" r="150" fill="#0f2549" stroke="#2c4d90" stroke-width="2.5"/>
+              <circle cx="350" cy="230" r="100" fill="none" stroke="#cfe3ff" stroke-width="1.6" stroke-dasharray="6 7" opacity=".45"/>
+              <circle cx="220" cy="230" r="7" fill="#f2b705"/>
+              <circle cx="480" cy="230" r="7" fill="#f2b705"/>
+              <g stroke="#f2b705" stroke-width="1.2" opacity=".4">
+                <line x1="220" y1="230" x2="300" y2="205"/>
+                <line x1="480" y1="230" x2="400" y2="255"/>
+              </g>
+              <g class="pulse" style="color:#56e0c9" transform="translate(300,205) rotate(20)">
+                <rect x="-22" y="-6" width="44" height="12" rx="6" fill="#56e0c9"/>
+                <rect x="-6" y="-22" width="12" height="44" rx="6" fill="#56e0c9"/>
+              </g>
+              <g class="pulse" style="color:#ff6f6f" transform="translate(400,255) rotate(-15)">
+                <rect x="-22" y="-6" width="44" height="12" rx="6" fill="#ff6f6f"/>
+                <rect x="-6" y="-22" width="12" height="44" rx="6" fill="#ff6f6f"/>
+              </g>
+              <text x="350" y="60" text-anchor="middle" fill="#eef3fb" font-family="IBM Plex Mono" font-size="15" font-weight="600">MOTHER CELL — 2 chromosomes</text>
+              <text x="350" y="410" text-anchor="middle" fill="#8ea3c9" font-family="IBM Plex Mono" font-size="13">Prophase — chromatin coils tightly into cross-shaped chromosomes</text>
+            </svg>
+          </div>
+
+          <!-- Stage 3: Metaphase -->
+          <div class="stage-scene" data-stage="2">
+            <svg viewBox="0 0 700 460" preserveAspectRatio="xMidYMid meet">
+              <circle cx="350" cy="230" r="150" fill="#0f2549" stroke="#2c4d90" stroke-width="2.5"/>
+              <circle cx="205" cy="230" r="7" fill="#f2b705"/>
+              <circle cx="495" cy="230" r="7" fill="#f2b705"/>
+              <g stroke="#f2b705" stroke-width="1.2" opacity=".45">
+                <line x1="205" y1="230" x2="350" y2="190"/>
+                <line x1="205" y1="230" x2="350" y2="270"/>
+                <line x1="495" y1="230" x2="350" y2="190"/>
+                <line x1="495" y1="230" x2="350" y2="270"/>
+              </g>
+              <g class="pulse" style="color:#56e0c9" transform="translate(350,190)">
+                <rect x="-22" y="-6" width="44" height="12" rx="6" fill="#56e0c9"/>
+                <rect x="-6" y="-22" width="12" height="44" rx="6" fill="#56e0c9"/>
+              </g>
+              <g class="pulse" style="color:#ff6f6f" transform="translate(350,270)">
+                <rect x="-22" y="-6" width="44" height="12" rx="6" fill="#ff6f6f"/>
+                <rect x="-6" y="-22" width="12" height="44" rx="6" fill="#ff6f6f"/>
+              </g>
+              <text x="350" y="60" text-anchor="middle" fill="#eef3fb" font-family="IBM Plex Mono" font-size="15" font-weight="600">MOTHER CELL — 2 chromosomes</text>
+              <text x="350" y="410" text-anchor="middle" fill="#8ea3c9" font-family="IBM Plex Mono" font-size="13">Metaphase — spindle fibers line chromosomes up at the cell's centre</text>
+            </svg>
+          </div>
+
+          <!-- Stage 4: Anaphase -->
+          <div class="stage-scene" data-stage="3">
+            <svg viewBox="0 0 700 460" preserveAspectRatio="xMidYMid meet">
+              <ellipse cx="350" cy="230" rx="172" ry="140" fill="#0f2549" stroke="#2c4d90" stroke-width="2.5"/>
+              <circle cx="190" cy="230" r="7" fill="#f2b705"/>
+              <circle cx="510" cy="230" r="7" fill="#f2b705"/>
+              <g stroke="#f2b705" stroke-width="1.2" opacity=".45">
+                <line x1="190" y1="230" x2="250" y2="195"/>
+                <line x1="190" y1="230" x2="250" y2="265"/>
+                <line x1="510" y1="230" x2="450" y2="195"/>
+                <line x1="510" y1="230" x2="450" y2="265"/>
+              </g>
+              <g class="pulse" style="color:#56e0c9" transform="translate(250,195) rotate(90)"><rect x="-6" y="-20" width="12" height="40" rx="6" fill="#56e0c9"/></g>
+              <g class="pulse" style="color:#ff6f6f" transform="translate(250,265) rotate(90)"><rect x="-6" y="-20" width="12" height="40" rx="6" fill="#ff6f6f"/></g>
+              <g class="pulse" style="color:#56e0c9" transform="translate(450,195) rotate(90)"><rect x="-6" y="-20" width="12" height="40" rx="6" fill="#56e0c9"/></g>
+              <g class="pulse" style="color:#ff6f6f" transform="translate(450,265) rotate(90)"><rect x="-6" y="-20" width="12" height="40" rx="6" fill="#ff6f6f"/></g>
+              <text x="350" y="60" text-anchor="middle" fill="#eef3fb" font-family="IBM Plex Mono" font-size="15" font-weight="600">MOTHER CELL — 2 + 2 chromosomes separating</text>
+              <text x="350" y="410" text-anchor="middle" fill="#8ea3c9" font-family="IBM Plex Mono" font-size="13">Anaphase — spindle fibers shorten, pulling one full copy to each pole</text>
+            </svg>
+          </div>
+
+          <!-- Stage 5: Telophase -->
+          <div class="stage-scene" data-stage="4">
+            <svg viewBox="0 0 700 460" preserveAspectRatio="xMidYMid meet">
+              <ellipse cx="255" cy="230" rx="118" ry="132" fill="#0f2549" stroke="#2c4d90" stroke-width="2.5"/>
+              <ellipse cx="445" cy="230" rx="118" ry="132" fill="#0f2549" stroke="#2c4d90" stroke-width="2.5"/>
+              <circle cx="255" cy="230" r="66" fill="none" stroke="#cfe3ff" stroke-width="1.6" stroke-dasharray="6 6" opacity=".6"/>
+              <circle cx="445" cy="230" r="66" fill="none" stroke="#cfe3ff" stroke-width="1.6" stroke-dasharray="6 6" opacity=".6"/>
+              <g class="pulse" style="color:#56e0c9" transform="translate(228,225) rotate(90)"><rect x="-5" y="-16" width="10" height="32" rx="5" fill="#56e0c9"/></g>
+              <g class="pulse" style="color:#ff6f6f" transform="translate(282,235) rotate(90)"><rect x="-5" y="-16" width="10" height="32" rx="5" fill="#ff6f6f"/></g>
+              <g class="pulse" style="color:#56e0c9" transform="translate(418,225) rotate(90)"><rect x="-5" y="-16" width="10" height="32" rx="5" fill="#56e0c9"/></g>
+              <g class="pulse" style="color:#ff6f6f" transform="translate(472,235) rotate(90)"><rect x="-5" y="-16" width="10" height="32" rx="5" fill="#ff6f6f"/></g>
+              <text x="255" y="60" text-anchor="middle" fill="#eef3fb" font-family="IBM Plex Mono" font-size="14" font-weight="600">DAUGHTER CELL A — 2</text>
+              <text x="445" y="60" text-anchor="middle" fill="#eef3fb" font-family="IBM Plex Mono" font-size="14" font-weight="600">DAUGHTER CELL B — 2</text>
+              <text x="350" y="410" text-anchor="middle" fill="#8ea3c9" font-family="IBM Plex Mono" font-size="13">Telophase — two new nuclear envelopes re-form as the cell pinches inward</text>
+            </svg>
+          </div>
+
+          <!-- Stage 6: Cytokinesis -->
+          <div class="stage-scene" data-stage="5">
+            <svg viewBox="0 0 700 460" preserveAspectRatio="xMidYMid meet">
+              <circle cx="205" cy="230" r="98" fill="#0f2549" stroke="#2c4d90" stroke-width="2.5"/>
+              <circle cx="495" cy="230" r="98" fill="#0f2549" stroke="#2c4d90" stroke-width="2.5"/>
+              <circle cx="205" cy="230" r="56" fill="#132c58" stroke="#cfe3ff" stroke-width="1.6" opacity=".85"/>
+              <circle cx="495" cy="230" r="56" fill="#132c58" stroke="#cfe3ff" stroke-width="1.6" opacity=".85"/>
+              <g class="pulse" style="color:#56e0c9" transform="translate(183,224) rotate(90)"><rect x="-5" y="-15" width="10" height="30" rx="5" fill="#56e0c9"/></g>
+              <g class="pulse" style="color:#ff6f6f" transform="translate(229,236) rotate(90)"><rect x="-5" y="-15" width="10" height="30" rx="5" fill="#ff6f6f"/></g>
+              <g class="pulse" style="color:#56e0c9" transform="translate(473,224) rotate(90)"><rect x="-5" y="-15" width="10" height="30" rx="5" fill="#56e0c9"/></g>
+              <g class="pulse" style="color:#ff6f6f" transform="translate(519,236) rotate(90)"><rect x="-5" y="-15" width="10" height="30" rx="5" fill="#ff6f6f"/></g>
+              <text x="205" y="60" text-anchor="middle" fill="#eef3fb" font-family="IBM Plex Mono" font-size="14" font-weight="600">DAUGHTER CELL A — 2</text>
+              <text x="495" y="60" text-anchor="middle" fill="#eef3fb" font-family="IBM Plex Mono" font-size="14" font-weight="600">DAUGHTER CELL B — 2</text>
+              <text x="350" y="410" text-anchor="middle" fill="#8ea3c9" font-family="IBM Plex Mono" font-size="13">Cytokinesis — nuclear envelopes complete; each daughter matches the mother cell</text>
+            </svg>
+          </div>
+
+          <canvas id="annotationCanvas"></canvas>
+        </div>
+
+        <div class="stage-footer">
+          <div class="stage-controls">
+            <button class="ctrl-btn" id="prevBtn" title="Previous phase">◀</button>
+            <button class="ctrl-btn" id="playBtn" title="Play / Pause">▶</button>
+            <button class="ctrl-btn" id="nextBtn" title="Next phase">▶</button>
+          </div>
+          <div class="stage-dots" id="stageDots"></div>
+          <p class="stage-desc" id="stageDesc"><strong>Interphase:</strong> the cell grows and its DNA replicates while chromatin remains loosely coiled inside an intact nucleus.</p>
+          <div class="legend">
+            <span><i style="background:#56e0c9"></i>Chromosome 1</span>
+            <span><i style="background:#ff6f6f"></i>Chromosome 2</span>
+            <span><i style="background:#f2b705"></i>Spindle fiber</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="navy-rule"></div>
+
+  <!-- Bottom scrolling copyright ticker -->
+  <footer class="site-footer">
+    <div class="ticker bottom" aria-hidden="true">
+      <div class="ticker-track">
+        <span>Visualize, realize and learn — website: www.govindbdhami.com.np</span>
+        <span>Visualize, realize and learn — website: www.govindbdhami.com.np</span>
+        <span>Visualize, realize and learn — website: www.govindbdhami.com.np</span>
+        <span>Visualize, realize and learn — website: www.govindbdhami.com.np</span>
+      </div>
+    </div>
+  </footer>
+
+<script>
+(function(){
+  // ---------- Stage data ----------
+  const stages = [
+    { name:"Interphase",   desc:"<strong>Interphase:</strong> chromosomes exist as thin, uncoiled chromatin threads inside an intact nuclear envelope, while the DNA replicates." },
+    { name:"Prophase",     desc:"<strong>Prophase:</strong> the chromatin threads coil tightly into visible cross-shaped chromosomes, the nuclear envelope breaks down, and spindle fibers begin forming from each pole." },
+    { name:"Metaphase",    desc:"<strong>Metaphase:</strong> spindle fibers from both poles attach to every chromosome and align them along the cell's equator." },
+    { name:"Anaphase",     desc:"<strong>Anaphase:</strong> spindle fibers shorten, pulling one full copy of each chromosome apart toward opposite poles." },
+    { name:"Telophase",    desc:"<strong>Telophase:</strong> two new nuclear envelopes re-form around each set of chromosomes as the cell membrane pinches inward." },
+    { name:"Cytokinesis",  desc:"<strong>Cytokinesis:</strong> the cytoplasm splits completely, producing two daughter cells, each with its own complete nucleus and the same chromosome count as the mother cell." }
+  ];
+
+  const scenes = document.querySelectorAll('.stage-scene');
+  const dotsWrap = document.getElementById('stageDots');
+  const phaseTag = document.getElementById('phaseTag');
+  const stageDesc = document.getElementById('stageDesc');
+  let current = 0;
+  let playing = false;
+  let playTimer = null;
+
+  stages.forEach((s,i)=>{
+    const dot = document.createElement('button');
+    dot.setAttribute('aria-label', s.name);
+    if(i===0) dot.classList.add('active');
+    dot.addEventListener('click', ()=> goTo(i));
+    dotsWrap.appendChild(dot);
+  });
+
+  function goTo(i){
+    current = (i + stages.length) % stages.length;
+    scenes.forEach(sc => sc.classList.toggle('active', Number(sc.dataset.stage) === current));
+    [...dotsWrap.children].forEach((d,idx)=> d.classList.toggle('active', idx===current));
+    phaseTag.textContent = `Stage ${current+1} / ${stages.length} — ${stages[current].name}`;
+    stageDesc.innerHTML = stages[current].desc;
+  }
+
+  document.getElementById('prevBtn').addEventListener('click', ()=>{ stopPlay(); goTo(current-1); });
+  document.getElementById('nextBtn').addEventListener('click', ()=>{ stopPlay(); goTo(current+1); });
+
+  const playBtn = document.getElementById('playBtn');
+  playBtn.addEventListener('click', ()=>{
+    playing ? stopPlay() : startPlay();
+  });
+  function startPlay(){
+    playing = true;
+    playBtn.classList.add('playing');
+    playBtn.textContent = '❚❚';
+    playTimer = setInterval(()=> goTo(current+1), 2200);
+  }
+  function stopPlay(){
+    playing = false;
+    playBtn.classList.remove('playing');
+    playBtn.textContent = '▶';
+    clearInterval(playTimer);
+  }
+
+  // ---------- Annotation canvas ----------
+  const wrap = document.getElementById('viewerWrap');
+  const canvas = document.getElementById('annotationCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function sizeCanvas(){
+    const rect = wrap.getBoundingClientRect();
+    const prev = document.createElement('canvas');
+    prev.width = canvas.width; prev.height = canvas.height;
+    prev.getContext('2d').drawImage(canvas,0,0);
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    ctx.drawImage(prev,0,0,prev.width,prev.height,0,0,canvas.width,canvas.height);
+  }
+  window.addEventListener('resize', sizeCanvas);
+  setTimeout(sizeCanvas, 50);
+
+  let tool = 'pen';
+  let color = '#ffffff';
+  let strokeWidth = 3;
+  let drawing = false;
+
+  function setActiveTool(id){
+    document.querySelectorAll('.tool[data-tool]').forEach(t=> t.classList.toggle('active', t.id===id));
+  }
+
+  document.getElementById('toolPen').addEventListener('click', ()=>{ tool='pen'; setActiveTool('toolPen'); canvas.style.cursor='crosshair'; });
+  document.getElementById('toolHighlight').addEventListener('click', ()=>{ tool='highlight'; setActiveTool('toolHighlight'); canvas.style.cursor='crosshair'; });
+  document.getElementById('toolErase').addEventListener('click', ()=>{ tool='erase'; setActiveTool('toolErase'); canvas.style.cursor='cell'; });
+
+  document.querySelectorAll('.swatch').forEach(sw=>{
+    sw.addEventListener('click', ()=>{
+      document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('selected'));
+      sw.classList.add('selected');
+      color = sw.dataset.color;
+    });
+  });
+  document.getElementById('customColor').addEventListener('input', (e)=>{
+    document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('selected'));
+    color = e.target.value;
+  });
+  document.getElementById('strokeSize').addEventListener('input', (e)=>{ strokeWidth = Number(e.target.value); });
+
+  document.getElementById('clearAll').addEventListener('click', ()=>{
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+  });
+
+  function pos(e){
+    const r = canvas.getBoundingClientRect();
+    const t = e.touches ? e.touches[0] : e;
+    return { x: t.clientX - r.left, y: t.clientY - r.top };
+  }
+
+  function startDraw(e){
+    drawing = true;
+    const p = pos(e);
+    ctx.beginPath();
+    ctx.moveTo(p.x,p.y);
+    draw(e);
+  }
+  function draw(e){
+    if(!drawing) return;
+    const p = pos(e);
+    ctx.lineCap='round';
+    ctx.lineJoin='round';
+    if(tool==='pen'){
+      ctx.globalCompositeOperation='source-over';
+      ctx.globalAlpha=1;
+      ctx.strokeStyle=color;
+      ctx.lineWidth=strokeWidth;
+    } else if(tool==='highlight'){
+      ctx.globalCompositeOperation='source-over';
+      ctx.globalAlpha=.35;
+      ctx.strokeStyle=color;
+      ctx.lineWidth=strokeWidth*4+8;
+    } else if(tool==='erase'){
+      ctx.globalCompositeOperation='destination-out';
+      ctx.globalAlpha=1;
+      ctx.lineWidth=strokeWidth*3+10;
+    }
+    ctx.lineTo(p.x,p.y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(p.x,p.y);
+  }
+  function endDraw(){ drawing=false; ctx.beginPath(); }
+
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', draw);
+  window.addEventListener('mouseup', endDraw);
+  canvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); startDraw(e); }, {passive:false});
+  canvas.addEventListener('touchmove', (e)=>{ e.preventDefault(); draw(e); }, {passive:false});
+  canvas.addEventListener('touchend', endDraw);
+
+  goTo(0);
+})();
+</script>
+</body>
+</html>
