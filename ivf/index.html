@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IVF प्रक्रिया – स्वचालित सिमुलेशन</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: #dce6e2;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.5rem 1rem 3rem;
+      min-height: 100vh;
+      color: #1e2b2f;
+    }
+    .container {
+      max-width: 1400px;
+      width: 100%;
+      background: #f6f3ef;
+      border-radius: 48px 48px 32px 32px;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.15), 0 4px 16px rgba(0, 0, 0, 0.05);
+      padding: 2rem 2.2rem 2.8rem;
+      border: 1px solid #dfd8d0;
+    }
+
+    /* ----- HEADER WITH SCROLLING CREDIT ----- */
+    .header-credit {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 2px solid #cdbfb2;
+    }
+    .header-credit h1 {
+      font-size: 2.2rem;
+      font-weight: 500;
+      letter-spacing: -0.5px;
+      color: #1d3a3f;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.6rem 1.2rem;
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+    .header-credit h1 span {
+      background: #4a6d66;
+      color: white;
+      font-size: 1rem;
+      font-weight: 400;
+      padding: 0.2rem 1.4rem;
+      border-radius: 40px;
+      letter-spacing: 0.4px;
+    }
+
+    /* Scrolling credit marquee */
+    .credit-scroll {
+      background: #4a6d66;
+      color: white;
+      padding: 0.35rem 1.2rem;
+      border-radius: 60px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      overflow: hidden;
+      max-width: 380px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 10px rgba(74, 109, 102, 0.3);
+      border: 1px solid #3a5f58;
+    }
+    .credit-scroll .scroll-text {
+      display: inline-block;
+      animation: scrollMarquee 10s linear infinite;
+      padding-right: 2rem;
+    }
+    @keyframes scrollMarquee {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* ----- INTRO SECTION ----- */
+    .intro-section {
+      background: #e7edea;
+      border-radius: 28px;
+      padding: 1.6rem 2rem;
+      margin-bottom: 2rem;
+      border-left: 6px solid #4a6d66;
+      box-shadow: inset 0 1px 6px rgba(0,0,0,0.04);
+    }
+    .intro-section p {
+      font-size: 1.08rem;
+      line-height: 1.7;
+      color: #1d3337;
+      margin-bottom: 0.8rem;
+    }
+    .intro-section p:last-child {
+      margin-bottom: 0;
+    }
+    .intro-section .highlight-text {
+      background: #d4dfda;
+      padding: 0.1rem 0.6rem;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.8rem;
+      margin-top: 1rem;
+      background: #f3f0ea;
+      border-radius: 20px;
+      padding: 1rem 1.4rem;
+      border: 1px solid #d5cdc1;
+    }
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      color: #1d2f32;
+    }
+    .feature-item strong {
+      color: #2f5a52;
+      font-weight: 600;
+    }
+    .feature-item .icon {
+      font-size: 1.2rem;
+      line-height: 1.3;
+    }
+
+    /* ----- REST ----- */
+    .sim-grid {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+    .canvas-wrapper {
+      flex: 2.2;
+      min-width: 560px;
+      background: #e9eeec;
+      border-radius: 32px;
+      padding: 1.2rem 1.2rem 0.8rem;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.06), 0 12px 28px -10px #3f443f;
+      border: 1px solid #cec3b8;
+    }
+    .canvas-wrapper canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #f6faf9;
+      border-radius: 24px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      margin-bottom: 0.6rem;
+      cursor: pointer;
+      transition: filter 0.1s;
+    }
+    .canvas-wrapper canvas:active {
+      filter: brightness(0.97);
+    }
+    .step-progress {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.3rem 0.6rem;
+      padding: 0.6rem 0.2rem;
+    }
+    .step-pill {
+      background: #d6cdc2;
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      color: #2c3f42;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .step-pill.active {
+      background: #4d766e;
+      color: white;
+      border-color: #2f554e;
+      box-shadow: 0 2px 10px rgba(55, 95, 85, 0.3);
+    }
+    .step-pill:hover {
+      background: #b9ada0;
+    }
+    .step-pill.active:hover {
+      background: #3d655d;
+    }
+    .info-side {
+      flex: 1.3;
+      min-width: 300px;
+      background: #f0ece6;
+      border-radius: 32px;
+      padding: 1.8rem 1.8rem 2rem;
+      box-shadow: inset 0 1px 4px rgba(255, 250, 240, 0.6), 0 12px 32px -14px #2e2b27;
+      border: 1px solid #d0c5b9;
+      display: flex;
+      flex-direction: column;
+    }
+    .info-side h3 {
+      font-weight: 500;
+      font-size: 1.4rem;
+      letter-spacing: -0.3px;
+      color: #1b3438;
+      border-left: 5px solid #8e7866;
+      padding-left: 1rem;
+      margin-bottom: 1.2rem;
+    }
+    .info-card {
+      background: #faf8f5;
+      border-radius: 24px;
+      padding: 1.2rem 1.4rem 1rem;
+      margin-bottom: 1.2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      flex: 1;
+    }
+    .info-card p {
+      font-size: 0.98rem;
+      line-height: 1.6;
+      margin-bottom: 0.6rem;
+      color: #1f3134;
+    }
+    .info-card .tag {
+      background: #cbbfb2;
+      padding: 0.1rem 0.8rem;
+      border-radius: 30px;
+      font-weight: 500;
+      color: #1d2d28;
+      display: inline-block;
+    }
+    .pros-cons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+      margin-top: 0.4rem;
+    }
+    .pros, .cons {
+      background: #f8f5f0;
+      border-radius: 20px;
+      padding: 0.8rem 1rem;
+      border: 1px solid #ddd2c6;
+    }
+    .pros h4, .cons h4 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.3px;
+    }
+    .pros h4 { color: #2a6b5e; }
+    .cons h4 { color: #a5533f; }
+    .pros ul, .cons ul {
+      list-style: none;
+      padding: 0;
+      font-size: 0.78rem;
+      line-height: 1.5;
+      color: #1f2f2f;
+    }
+    .pros ul li::before { content: "✓ "; color: #2a6b5e; font-weight: 600; }
+    .cons ul li::before { content: "✗ "; color: #a5533f; font-weight: 600; }
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin-top: 0.8rem;
+    }
+    .btn {
+      border: none;
+      padding: 0.6rem 1.8rem;
+      border-radius: 80px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #1d2e2b;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: 0.15s;
+      cursor: pointer;
+      border: 1px solid #b7a795;
+      flex: 1 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+    .btn-primary {
+      background: #4f7a72;
+      color: white;
+      border-color: #3a615b;
+      box-shadow: 0 4px 10px rgba(50, 80, 70, 0.2);
+    }
+    .btn-primary:hover {
+      background: #3b645d;
+      transform: scale(0.97);
+    }
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #93877b;
+    }
+    .btn-outline:hover {
+      background: #ddd2c6;
+    }
+    .btn-auto {
+      background: #6a5e52;
+      color: white;
+      border-color: #554b40;
+    }
+    .btn-auto:hover {
+      background: #5a4e43;
+    }
+    .btn-auto.running {
+      background: #a5533f;
+      border-color: #8a4232;
+    }
+    .footer-meta {
+      margin-top: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem 1.8rem;
+      background: #e5dbd1;
+      padding: 0.6rem 1.6rem;
+      border-radius: 60px;
+      border: 1px solid #cdbfb2;
+      font-size: 0.85rem;
+      color: #2c4541;
+    }
+    .footer-meta i {
+      font-style: normal;
+      background: #2f4a47;
+      color: white;
+      padding: 0.1rem 0.8rem;
+      border-radius: 30px;
+    }
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.2rem 0.4rem;
+      font-size: 0.8rem;
+      color: #3a5a54;
+    }
+    @media (max-width: 800px) {
+      .container { padding: 1.2rem; }
+      .canvas-wrapper { min-width: 100%; padding: 0.8rem; }
+      .info-side { min-width: 100%; }
+      .pros-cons { grid-template-columns: 1fr; }
+      .intro-section { padding: 1.2rem; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .header-credit { flex-direction: column; align-items: flex-start; }
+      .credit-scroll { max-width: 100%; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER with scrolling credit -->
+  <div class="header-credit">
+    <h1>
+      <span>🧬 इन भिट्टो फर्टिलाइजेसन</span>
+      <span style="background:#3f5f58; font-weight:300;">स्वचालित सिमुलेशन</span>
+    </h1>
+    <div class="credit-scroll">
+      <span class="scroll-text">✨ Designed by: GOVIND BAHADUR DHAMI ✨</span>
+    </div>
+  </div>
+
+  <!-- INTRO SECTION -->
+  <div class="intro-section">
+    <p>
+      <span class="highlight-text">IVF</span> सहायक प्रजनन प्रविधिको सबैभन्दा प्रभावकारी विधि हो। 
+      यो विधि प्रजनन क्षमता कम भएका वा आनुवंशिक समस्या भएका जोडीलाई गर्भधारणमा सहयोग 
+      गर्न प्रयोग गरिने प्रक्रियाको एक जटिल शृङ्खला हो। 
+      <strong>IVF</strong> सामान्य यौन सम्पर्कभन्दा फरक तरिकाबाट गर्भधारण गर्ने तरिका हो। 
+      IVF बाट जन्मिने बच्चाको मानसिक र शारीरिक विशेषता सामान्य बच्चा जस्तै हुन्छ।
+    </p>
+
+    <div class="feature-grid">
+      <div class="feature-item"><span class="icon">✅</span> <div><strong>प्रभावकारिता:</strong> IVF सहायक प्रजनन प्रविधि (ART) मध्ये सबैभन्दा प्रभावकारी विधि मानिन्छ।</div></div>
+      <div class="feature-item"><span class="icon">🎯</span> <div><strong>उद्देश्य:</strong> प्रजनन क्षमता कम भएका वा आनुवंशिक समस्या भएका दम्पतीलाई गर्भधारण गर्न सहयोग पुर्याउने प्रक्रिया हो।</div></div>
+      <div class="feature-item"><span class="icon">⚙️</span> <div><strong>प्रक्रिया:</strong> यो प्रक्रिया निकै जटिल चरणहरूबाट पूरा हुन्छ।</div></div>
+      <div class="feature-item"><span class="icon">🧬</span> <div><strong>तरिका:</strong> यो प्राकृतिक गर्भधारण (सामान्य यौन सम्पर्क) भन्दा पूर्णतया फरक तरिकाले गरिने विधि हो।</div></div>
+      <div class="feature-item"><span class="icon">👶</span> <div><strong>नतिजा:</strong> यस प्रविधिबाट जन्मिएका बालबालिकाको मानसिक र शारीरिक विशेषता सामान्य प्रक्रियाबाट जन्मिएका बालबालिका सरह नै हुन्छन्।</div></div>
+    </div>
+  </div>
+
+  <!-- SIMULATION -->
+  <div class="sim-grid">
+    <div class="canvas-wrapper">
+      <canvas id="ivfCanvas" width="840" height="480"></canvas>
+      <div class="step-progress" id="stepProgress">
+        <span class="step-pill" data-step="0">1. अण्डा निकासी</span>
+        <span class="step-pill" data-step="1">2. निषेचन</span>
+        <span class="step-pill" data-step="2">3. भ्रूण विकास</span>
+        <span class="step-pill" data-step="3">4. प्रत्यारोपण</span>
+        <span class="step-pill" data-step="4">5. जन्म</span>
+      </div>
+      <div class="status-bar">
+        <span id="stepStatus">⏳ चरण १/५ · अण्डा निकासी</span>
+        <span id="autoStatus">🔴 रोकियो</span>
+      </div>
+    </div>
+
+    <div class="info-side">
+      <h3>📋 चरण विवरण</h3>
+      <div class="info-card" id="infoCard">
+        <p id="stepDescription"><span class="tag">🔬 प्रारम्भ</span> अण्डाशयबाट परिपक्व अण्डा (ovum) प्रयोगशालामा ल्याइन्छ ।</p>
+        <p style="font-size:0.9rem; color:#3b5b55; background: #e3dad1; padding:0.2rem 0.8rem; border-radius:40px; display:inline-block;">⏳ ३–४ हप्ता (लगभग)</p>
+      </div>
+
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ IVF का फाइदा</h4>
+          <ul>
+            <li>गर्भधारण समस्या समाधान</li>
+            <li>आफ्नै अण्डा/शुक्राणु प्रयोग</li>
+            <li>दाता अण्डा/शुक्राणु विकल्प</li>
+            <li>अन्य प्रविधिभन्दा बढी सफल</li>
+            <li>स्वस्थ बच्चा जन्माउने सम्भावना</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>⚠️ IVF का बेफाइदा</h4>
+          <ul>
+            <li>सफलताको ग्यारेन्टी छैन</li>
+            <li>साइड इफेक्ट हुन सक्छ</li>
+            <li>बहु गर्भधारण जोखिम</li>
+            <li>भावनात्मक तनाव</li>
+            <li>एक्टोपिक गर्भावस्था जोखिम</li>
+            <li>महँगो उपचार</li>
+            <li>अपरिपक्व/कम तौलको बच्चा</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" id="nextBtn">▶ अर्को चरण</button>
+        <button class="btn btn-auto" id="autoBtn">▶ स्वचालित सुरु</button>
+        <button class="btn btn-outline" id="resetBtn">⟲ रिसेट</button>
+      </div>
+      <div style="margin-top:0.8rem; background:#d9cfc3; border-radius:40px; padding:0.3rem 1rem; font-size:0.75rem; color:#1d322e; text-align:center;">
+        <span>🏆 पहिलो IVF बेबी : लुइस जोय ब्राउन (1978) · नेपाल : ओममणि तामाङ (2005)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-meta">
+    <span><i>🧫</i> प्रयोगशाला निषेचन · भ्रूण प्रत्यारोपण</span>
+    <span><i>🧬</i> आनुवंशिक समस्या समाधान</span>
+    <span><i>👶</i> स्वस्थ बच्चा जन्माउने सम्भावना</span>
+  </div>
+</div>
+<script>
+  (function() {
+    const canvas = document.getElementById('ivfCanvas');
+    const ctx = canvas.getContext('2d');
+    const pills = document.querySelectorAll('.step-pill');
+    const stepDesc = document.getElementById('stepDescription');
+    const stepStatus = document.getElementById('stepStatus');
+    const autoStatus = document.getElementById('autoStatus');
+    const nextBtn = document.getElementById('nextBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const autoBtn = document.getElementById('autoBtn');
+
+    const stepTexts = [
+      { desc: '🔬 <span class="tag">अण्डा निकासी</span> : महिलाको अण्डाशयबाट परिपक्व अण्डा (ovum) प्रयोगशालामा ल्याइन्छ । अल्ट्रासाउन्ड मार्फत मार्गदर्शन गरिन्छ ।', label: 'अण्डा निकासी' },
+      { desc: '🧪 <span class="tag">निषेचन</span> : अण्डालाई शुक्रकीटसँग पेट्री डिशमा मिलाइन्छ (ICSI वा सामान्य IVF) । निषेचन १८–२४ घण्टामा हुन्छ ।', label: 'निषेचन' },
+      { desc: '🌱 <span class="tag">भ्रूण विकास</span> : निषेचित अण्डा (भ्रूण) ३–५ दिनसम्म इन्क्युबेटरमा हुर्काइन्छ । गुणस्तर अनुसार चयन गरिन्छ ।', label: 'भ्रूण विकास' },
+      { desc: '🏥 <span class="tag">प्रत्यारोपण</span> : उत्कृष्ट भ्रूणलाई पातलो क्याथेटरको सहायताले महिलाको पाठेघरमा सारिन्छ (Embryo transfer) ।', label: 'प्रत्यारोपण' },
+      { desc: '👶 <span class="tag">जन्म</span> : सफल प्रत्यारोपणपछि गर्भावस्था पूरा भई ९ महिनापछि स्वस्थ बच्चा जन्मिन्छ ।', label: 'जन्म' }
+    ];
+
+    let currentStep = 0;
+    let progress = 0;
+    let animFrame = null;
+    let animStartTime = 0;
+    const ANIM_DURATION = 1000;
+
+    let autoRunning = false;
+    let autoTimer = null;
+    let autoPauseBetweenSteps = 1500;
+
+    // ----- draw -----
+    function drawScene(step, prog) {
+      const w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const grad = ctx.createRadialGradient(400, 240, 80, 400, 240, 450);
+      grad.addColorStop(0, '#eef3f1');
+      grad.addColorStop(0.6, '#d7dfdb');
+      grad.addColorStop(1, '#bbc8c2');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.save();
+      ctx.globalAlpha = 0.08;
+      ctx.strokeStyle = '#4a5f59';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < w; i += 50) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, h);
+        ctx.stroke();
+      }
+      for (let i = 0; i < h; i += 50) {
+        ctx.beginPath();
+        ctx.moveTo(0, i);
+        ctx.lineTo(w, i);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      ctx.shadowColor = 'rgba(40,50,45,0.08)';
+      ctx.shadowBlur = 12;
+
+      if (step === 0) {
+        ctx.save();
+        ctx.shadowBlur = 18;
+        ctx.fillStyle = '#b88a74';
+        ctx.beginPath();
+        ctx.ellipse(180, 260, 70, 50, 0.2, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#c89b84';
+        ctx.beginPath();
+        ctx.ellipse(210, 240, 38, 30, 0.1, 0, Math.PI*2);
+        ctx.fill();
+        for (let i=0; i<5; i++) {
+          ctx.fillStyle = '#dbb8a4';
+          ctx.beginPath();
+          ctx.arc(170 + i*18, 230 + i*6, 14+2*Math.sin(i), 0, Math.PI*2);
+          ctx.fill();
+        }
+        const eggX = 200 + 12*prog;
+        const eggY = 200 - 18*prog;
+        ctx.shadowBlur = 24;
+        ctx.fillStyle = '#f5e7d9';
+        ctx.beginPath();
+        ctx.arc(eggX, eggY, 22, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#e2ceba';
+        ctx.beginPath();
+        ctx.arc(eggX-3, eggY-5, 12, 0, Math.PI*2);
+        ctx.fill();
+        ctx.strokeStyle = '#3b5d54';
+        ctx.lineWidth = 4;
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.moveTo(340, 100);
+        ctx.lineTo(380, 170);
+        ctx.stroke();
+        ctx.fillStyle = '#b0c2ba';
+        ctx.beginPath();
+        ctx.arc(380, 175, 10, 0, Math.PI*2);
+        ctx.fill();
+        ctx.font = 'bold 15px "Segoe UI", sans-serif';
+        ctx.fillStyle = '#19312b';
+        ctx.shadowBlur = 0;
+        ctx.fillText('🥚 अण्डा निकासी (Aspiration)', 140, 100);
+        ctx.restore();
+      }
+
+      if (step === 1) {
+        ctx.save();
+        ctx.shadowBlur = 14;
+        ctx.fillStyle = '#d3ddd8';
+        ctx.beginPath();
+        ctx.ellipse(340, 230, 110, 62, 0, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#bccfc7';
+        ctx.beginPath();
+        ctx.ellipse(340, 230, 88, 48, 0, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#e3eae6';
+        ctx.beginPath();
+        ctx.ellipse(340, 230, 74, 40, 0, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#f5e3d1';
+        ctx.beginPath();
+        ctx.arc(320, 220, 26, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#dac3ae';
+        ctx.beginPath();
+        ctx.arc(320, 220, 14, 0, Math.PI*2);
+        ctx.fill();
+        const spermCount = 8 + Math.floor(prog * 14);
+        for (let i=0; i<spermCount; i++) {
+          const angle = i * 0.9 + prog * 1.8;
+          const rad = 30 + 18*Math.sin(i*1.3 + prog*2);
+          const sx = 340 + rad * Math.cos(angle + i*0.5);
+          const sy = 230 + rad * 0.5 * Math.sin(angle*0.7 + i);
+          ctx.fillStyle = '#3a5e56';
+          ctx.beginPath();
+          ctx.arc(sx, sy, 3+1.2*Math.sin(i+prog*8), 0, Math.PI*2);
+          ctx.fill();
+          ctx.fillStyle = '#5d8076';
+          ctx.beginPath();
+          ctx.arc(sx-2, sy-2, 1.8, 0, Math.PI*2);
+          ctx.fill();
+        }
+        ctx.font = 'bold 15px sans-serif';
+        ctx.fillStyle = '#1a2f2a';
+        ctx.shadowBlur = 0;
+        ctx.fillText('🧪 निषेचन · पेट्री डिश', 200, 120);
+        ctx.restore();
+      }
+
+      if (step === 2) {
+        ctx.save();
+        ctx.shadowBlur = 16;
+        ctx.fillStyle = '#abb9b2';
+        ctx.shadowBlur = 6;
+        ctx.fillRect(180, 120, 360, 200);
+        ctx.fillStyle = '#c6d4cd';
+        ctx.fillRect(190, 130, 340, 180);
+        const count = 4 + Math.floor(prog * 4);
+        for (let i=0; i<count; i++) {
+          const x = 220 + (i%4)*70 + 15*Math.sin(prog*2 + i*1.2);
+          const y = 170 + (i%3)*40 + 12*Math.sin(prog*1.7 + i*1.8);
+          ctx.fillStyle = '#dbbca8';
+          ctx.beginPath();
+          ctx.arc(x, y, 16+3*Math.sin(prog*2.5+i), 0, Math.PI*2);
+          ctx.fill();
+          ctx.fillStyle = '#b3917c';
+          ctx.beginPath();
+          ctx.arc(x-4, y-5, 8, 0, Math.PI*2);
+          ctx.fill();
+          ctx.fillStyle = '#d2b09a';
+          ctx.beginPath();
+          ctx.arc(x+5, y+3, 6, 0, Math.PI*2);
+          ctx.fill();
+        }
+        ctx.font = 'bold 15px sans-serif';
+        ctx.fillStyle = '#0f2a23';
+        ctx.shadowBlur = 0;
+        ctx.fillText('🌱 भ्रूण विकास (इन्क्युबेटर)', 240, 100);
+        ctx.restore();
+      }
+
+      if (step === 3) {
+        ctx.save();
+        ctx.shadowBlur = 12;
+        ctx.fillStyle = '#a88572';
+        ctx.beginPath();
+        ctx.ellipse(480, 280, 72, 96, 0, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#be9a85';
+        ctx.beginPath();
+        ctx.ellipse(480, 270, 54, 78, 0, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#d3b29d';
+        ctx.beginPath();
+        ctx.ellipse(480, 260, 40, 60, 0, 0, Math.PI*2);
+        ctx.fill();
+        const embX = 340 + 110*prog;
+        const embY = 190 + 40*prog;
+        ctx.shadowBlur = 20;
+        ctx.fillStyle = '#ecd5c2';
+        ctx.beginPath();
+        ctx.arc(embX, embY, 18, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#c9ac97';
+        ctx.beginPath();
+        ctx.arc(embX-4, embY-5, 10, 0, Math.PI*2);
+        ctx.fill();
+        ctx.strokeStyle = '#3f6b60';
+        ctx.lineWidth = 5;
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.moveTo(210, 130);
+        ctx.lineTo(320 + 70*prog, 150 + 30*prog);
+        ctx.stroke();
+        ctx.fillStyle = '#6a8d82';
+        ctx.beginPath();
+        ctx.arc(320 + 70*prog, 150 + 30*prog, 8, 0, Math.PI*2);
+        ctx.fill();
+        ctx.font = 'bold 15px sans-serif';
+        ctx.fillStyle = '#12302a';
+        ctx.shadowBlur = 0;
+        ctx.fillText('🏥 भ्रूण प्रत्यारोपण (Embryo Transfer)', 230, 90);
+        ctx.restore();
+      }
+
+      if (step === 4) {
+        ctx.save();
+        ctx.shadowBlur = 20;
+        ctx.fillStyle = '#f5ddd0';
+        ctx.beginPath();
+        ctx.arc(380, 200, 40, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#dcbcaa';
+        ctx.beginPath();
+        ctx.arc(380, 200, 26, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#b18573';
+        ctx.beginPath();
+        ctx.arc(368, 188, 8, 0, Math.PI*2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(392, 188, 8, 0, Math.PI*2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(380, 210, 12, 0.1, Math.PI-0.1);
+        ctx.strokeStyle = '#754f3f';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        for (let i=0; i<10; i++) {
+          const angle = i*0.7 + prog*0.6;
+          const rad = 60 + 20*Math.sin(prog*3 + i*0.9);
+          ctx.fillStyle = '#b3977c';
+          ctx.beginPath();
+          ctx.arc(280 + rad*Math.cos(angle), 130 + rad*0.6*Math.sin(angle), 5+2*Math.sin(prog*5+i), 0, Math.PI*2);
+          ctx.fill();
+        }
+        ctx.font = 'bold 18px sans-serif';
+        ctx.fillStyle = '#0d2a24';
+        ctx.shadowBlur = 0;
+        ctx.fillText('👶 स्वस्थ बच्चा जन्म !', 280, 90);
+        ctx.restore();
+      }
+
+      ctx.shadowBlur = 0;
+      ctx.font = '12px "Segoe UI", monospace';
+      ctx.fillStyle = '#2c4742';
+      ctx.fillText('IVF · स्वचालित सिमुलेशन · क्लिक गर्नुहोस्', 20, 30);
+    }
+
+    // ----- update UI -----
+    function updateUI() {
+      pills.forEach((pill, idx) => {
+        pill.classList.toggle('active', idx === currentStep);
+      });
+      stepDesc.innerHTML = stepTexts[currentStep].desc;
+      stepStatus.textContent = `⏳ चरण ${currentStep+1}/५ · ${stepTexts[currentStep].label}`;
+      drawScene(currentStep, progress);
+    }
+
+    // ----- animation -----
+    function animateStep(callback) {
+      if (animFrame) cancelAnimationFrame(animFrame);
+      animStartTime = performance.now();
+      function stepAnim(time) {
+        const elapsed = time - animStartTime;
+        progress = Math.min(1, elapsed / ANIM_DURATION);
+        drawScene(currentStep, progress);
+        if (progress < 1) {
+          animFrame = requestAnimationFrame(stepAnim);
+        } else {
+          animFrame = null;
+          drawScene(currentStep, 1);
+          if (callback) callback();
+        }
+      }
+      animFrame = requestAnimationFrame(stepAnim);
+    }
+
+    function goToStep(step) {
+      if (step < 0 || step > 4) return;
+      if (animFrame) cancelAnimationFrame(animFrame);
+      currentStep = step;
+      progress = 0;
+      updateUI();
+      animateStep();
+    }
+
+    function nextStep() {
+      if (currentStep < 4) {
+        goToStep(currentStep + 1);
+      } else {
+        resetSimulation();
+      }
+    }
+
+    function resetSimulation() {
+      if (autoRunning) stopAutoRun();
+      if (animFrame) cancelAnimationFrame(animFrame);
+      currentStep = 0;
+      progress = 0;
+      updateUI();
+      drawScene(0, 0);
+    }
+
+    // ----- Auto-run -----
+    function startAutoRun() {
+      if (autoRunning) return;
+      autoRunning = true;
+      autoBtn.textContent = '⏹ रोक्नुहोस्';
+      autoBtn.classList.add('running');
+      autoStatus.textContent = '▶ चलिरहेको';
+      autoStatus.style.color = '#2a6b5e';
+      nextBtn.disabled = true;
+      runNextAutoStep();
+    }
+
+    function stopAutoRun() {
+      autoRunning = false;
+      if (autoTimer) {
+        clearTimeout(autoTimer);
+        autoTimer = null;
+      }
+      autoBtn.textContent = '▶ स्वचालित सुरु';
+      autoBtn.classList.remove('running');
+      autoStatus.textContent = '🔴 रोकियो';
+      autoStatus.style.color = '#a5533f';
+      nextBtn.disabled = false;
+    }
+
+    function runNextAutoStep() {
+      if (!autoRunning) return;
+
+      if (currentStep === 4) {
+        autoTimer = setTimeout(() => {
+          if (autoRunning) stopAutoRun();
+        }, 2000);
+        return;
+      }
+
+      if (progress < 1) {
+        animateStep(() => {
+          if (!autoRunning) return;
+          autoTimer = setTimeout(() => {
+            if (!autoRunning) return;
+            if (currentStep < 4) {
+              goToStep(currentStep + 1);
+              autoTimer = setTimeout(() => {
+                if (autoRunning) runNextAutoStep();
+              }, autoPauseBetweenSteps);
+            } else {
+              stopAutoRun();
+            }
+          }, 600);
+        });
+      } else {
+        if (currentStep < 4) {
+          goToStep(currentStep + 1);
+          autoTimer = setTimeout(() => {
+            if (autoRunning) runNextAutoStep();
+          }, autoPauseBetweenSteps);
+        } else {
+          stopAutoRun();
+        }
+      }
+    }
+
+    // Override goToStep for auto-run
+    const originalGoToStep = goToStep;
+    goToStep = function(step) {
+      if (animFrame) cancelAnimationFrame(animFrame);
+      currentStep = step;
+      progress = 0;
+      updateUI();
+      animateStep(() => {
+        if (autoRunning && currentStep < 4) {
+          autoTimer = setTimeout(() => {
+            if (autoRunning) runNextAutoStep();
+          }, autoPauseBetweenSteps);
+        }
+      });
+    };
+
+    // ----- events -----
+    nextBtn.addEventListener('click', () => {
+      if (autoRunning) return;
+      nextStep();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      if (autoRunning) stopAutoRun();
+      resetSimulation();
+    });
+
+    autoBtn.addEventListener('click', () => {
+      if (autoRunning) {
+        stopAutoRun();
+      } else {
+        if (currentStep === 4) resetSimulation();
+        startAutoRun();
+      }
+    });
+
+    canvas.addEventListener('click', () => {
+      if (!autoRunning) nextStep();
+    });
+
+    pills.forEach((pill, idx) => {
+      pill.addEventListener('click', () => {
+        if (autoRunning) return;
+        if (idx !== currentStep) {
+          goToStep(idx);
+        }
+      });
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Space') {
+        e.preventDefault();
+        if (!autoRunning) nextStep();
+      }
+      if (e.key === 'r' || e.key === 'R') {
+        if (autoRunning) stopAutoRun();
+        resetSimulation();
+      }
+      if (e.key === 'a' || e.key === 'A') {
+        autoBtn.click();
+      }
+    });
+
+    // initial
+    updateUI();
+    drawScene(0, 0);
+  })();
+</script>
+</body>
+</html>
