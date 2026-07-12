@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Joint & Disjoint Sets · Class 8</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #e8edf5 0%, #d5dce8 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 48px 48px 32px 32px;
+            box-shadow: 0 25px 50px rgba(0, 20, 30, 0.12), 0 8px 16px rgba(0,0,0,0.04);
+            padding: 28px 32px;
+            max-width: 1300px;
+            width: 100%;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 60px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .scrolling-credit {
+            flex: 1;
+            overflow: hidden;
+            white-space: nowrap;
+            font-size: 0.9rem;
+            color: #2a4059;
+            font-weight: 500;
+        }
+        .scrolling-credit span {
+            display: inline-block;
+            animation: scrollText 15s linear infinite;
+            padding-left: 100%;
+        }
+        @keyframes scrollText {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+        .lang-toggle {
+            display: flex;
+            gap: 6px;
+            background: rgba(255,255,255,0.3);
+            padding: 4px;
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.2);
+            flex-shrink: 0;
+        }
+        .lang-btn {
+            padding: 6px 16px;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.25s;
+            background: transparent;
+            color: #2a4059;
+        }
+        .lang-btn.active {
+            background: #2a5f7a;
+            color: white;
+            box-shadow: 0 4px 12px rgba(42,95,122,0.25);
+        }
+        .lang-btn:hover:not(.active) { background: rgba(42,95,122,0.08); }
+        .stage-progress {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            justify-content: center;
+            background: rgba(200, 215, 235, 0.25);
+            padding: 12px 18px;
+            border-radius: 60px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .step {
+            flex: 1 1 auto;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 10px 16px;
+            border-radius: 40px;
+            background: rgba(220, 232, 248, 0.2);
+            color: #2a4059;
+            transition: 0.3s;
+            letter-spacing: 0.3px;
+            border: 1px solid transparent;
+            min-width: 70px;
+            cursor: pointer;
+        }
+        .step.active {
+            background: #2a5f7a;
+            color: white;
+            box-shadow: 0 4px 16px rgba(42, 95, 122, 0.3);
+            border-color: #1f4a60;
+            transform: scale(1.02);
+        }
+        .step.done {
+            background: #3c8d7a;
+            color: white;
+            opacity: 0.85;
+        }
+        .step.locked {
+            opacity: 0.4;
+            filter: grayscale(0.5);
+            cursor: not-allowed;
+        }
+        .content {
+            min-height: 400px;
+            transition: opacity 0.3s ease;
+        }
+        h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #1b2e40;
+            letter-spacing: -0.02em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .desc {
+            color: #1c3b4f;
+            line-height: 1.7;
+            font-size: 1.1rem;
+            margin-bottom: 24px;
+        }
+        .flex-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin: 20px 0;
+            align-items: flex-start;
+        }
+        .card-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: rgba(255,255,255,0.6);
+            border-radius: 28px;
+            padding: 18px 24px;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.02);
+            border: 1px solid rgba(255,255,255,0.7);
+            flex: 1 1 160px;
+            transition: transform 0.2s;
+        }
+        .card:hover { transform: translateY(-2px); }
+        .btn {
+            background: #eaf0f8;
+            border: none;
+            border-radius: 60px;
+            padding: 12px 28px;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #1f4057;
+            cursor: pointer;
+            transition: 0.25s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.02);
+            border: 1px solid rgba(255,255,255,0.5);
+            backdrop-filter: blur(2px);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.06); }
+        .btn-primary {
+            background: #2a5f7a;
+            color: white;
+            border: none;
+            box-shadow: 0 8px 18px rgba(42, 95, 122, 0.25);
+        }
+        .btn-primary:disabled {
+            opacity: 0.4;
+            filter: grayscale(0.5);
+            pointer-events: none;
+            transform: none;
+        }
+        .btn-primary:hover:not(:disabled) { background: #1e4a61; transform: translateY(-2px); }
+        .btn-success { background: #2a9d8f; color: white; }
+        .btn-success:hover { background: #21867a; }
+        .btn-purple { background: #7a5a8a; color: white; }
+        .btn-purple:hover { background: #6a4a7a; }
+        .btn-warning { background: #d4a04a; color: white; }
+        .btn-warning:hover { background: #c4903a; }
+        svg {
+            border-radius: 24px;
+            background: rgba(240, 247, 255, 0.4);
+            width: 100%;
+            height: auto;
+            max-width: 580px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            cursor: default;
+            touch-action: none;
+        }
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px 20px;
+            align-items: center;
+            background: rgba(255,255,255,0.4);
+            padding: 18px 24px;
+            border-radius: 40px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .input-group label { font-weight: 600; min-width: 70px; color: #1a3344; }
+        .input-group input {
+            border: none;
+            background: rgba(255,255,255,0.7);
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-size: 1rem;
+            flex: 1 1 160px;
+            backdrop-filter: blur(2px);
+            border: 1px solid rgba(0,0,0,0.06);
+            transition: 0.2s;
+        }
+        .input-group input:focus { outline: none; border-color: #2a5f7a; box-shadow: 0 0 0 3px rgba(42,95,122,0.1); }
+        .info-badge {
+            background: rgba(42, 95, 122, 0.08);
+            padding: 14px 24px;
+            border-radius: 40px;
+            display: inline-block;
+            border: 1px solid rgba(42,95,122,0.1);
+        }
+        .quiz-option {
+            display: block;
+            margin: 10px 0;
+            padding: 14px 22px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 60px;
+            border: 2px solid transparent;
+            transition: 0.2s;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .quiz-option:hover { background: rgba(42,95,122,0.06); transform: translateX(4px); }
+        .quiz-option.selected { border-color: #2a5f7a; background: rgba(42,95,122,0.1); }
+        .quiz-option.correct { border-color: #2a9d8f; background: #d4f0ea; }
+        .quiz-option.wrong { border-color: #d95d5d; background: #fce4e4; }
+        .feedback { margin-top: 16px; padding: 14px 22px; border-radius: 40px; background: rgba(255,255,255,0.7); border: 1px solid rgba(0,0,0,0.04); }
+        .hidden { display: none; }
+        .mt-3 { margin-top: 28px; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .venn-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding: 10px;
+        }
+        .venn-controls {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .set-display {
+            background: rgba(255,255,255,0.5);
+            padding: 14px 24px;
+            border-radius: 40px;
+            margin: 8px 0;
+            font-weight: 500;
+            border: 1px solid rgba(255,255,255,0.4);
+            backdrop-filter: blur(2px);
+        }
+        .quiz-container {
+            background: rgba(255,255,255,0.3);
+            padding: 24px 28px;
+            border-radius: 32px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .element-badge {
+            fill: #1a3344;
+            font-size: 13px;
+            font-weight: 600;
+            text-anchor: middle;
+            dominant-baseline: central;
+            cursor: grab;
+            transition: fill 0.2s;
+        }
+        .element-badge:hover { fill: #2a5f7a; }
+        .element-badge.dragging { cursor: grabbing; fill: #e67e22; font-weight: 800; }
+        .outside-element {
+            fill: #4a6a7a;
+            font-size: 12px;
+            font-weight: 500;
+            text-anchor: middle;
+            dominant-baseline: central;
+            cursor: grab;
+        }
+        .outside-element:hover { fill: #2a5f7a; }
+        .outside-element.dragging { cursor: grabbing; fill: #e67e22; font-weight: 800; }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            margin: 12px 0;
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 40px;
+            backdrop-filter: blur(2px);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .legend-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        .status-badge {
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-joint { background: #d4f0ea; color: #1a5a3a; }
+        .status-disjoint { background: #f0d4d4; color: #5a1a1a; }
+        .status-subset { background: #d4d4f0; color: #3a3a5a; }
+        .report-card {
+            background: rgba(255,255,255,0.5);
+            border-radius: 32px;
+            padding: 32px;
+            text-align: center;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .drag-hint {
+            background: rgba(42,95,122,0.08);
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            color: #2a5f7a;
+            border: 1px dashed #2a5f7a;
+        }
+        [data-lang="ne"] .lang-en { display: none; }
+        [data-lang="en"] .lang-ne { display: none; }
+        @media (max-width: 768px) {
+            .glass-card { padding: 16px; border-radius: 32px; }
+            .stage-progress { gap: 4px; padding: 8px 12px; }
+            .step { font-size: 0.7rem; padding: 6px 10px; min-width: 50px; }
+            h2 { font-size: 1.6rem; }
+            .quiz-container { padding: 16px; }
+            .input-group { padding: 14px 16px; }
+            .btn { padding: 10px 20px; font-size: 0.9rem; }
+            .legend { gap: 10px; padding: 10px 14px; }
+            .legend-item { font-size: 0.8rem; }
+            .top-bar { flex-direction: column; align-items: stretch; gap: 8px; }
+            .scrolling-credit { font-size: 0.75rem; }
+        }
+        @media (max-width: 480px) {
+            .glass-card { padding: 12px; border-radius: 24px; }
+            .step { font-size: 0.6rem; padding: 4px 8px; min-width: 40px; }
+            h2 { font-size: 1.3rem; }
+            .set-display { font-size: 0.85rem; padding: 10px 16px; }
+        }
+    </style>
+</head>
+<body>
+<div class="glass-card" id="app" data-lang="en">
+    <!-- Top Bar with Scrolling Credit & Language Toggle -->
+    <div class="top-bar">
+        <div class="scrolling-credit">
+            <span>🏫 Designed By: Govind Dhami, AI Tutor &nbsp;•&nbsp; 📚 Class 8 Mathematics &nbsp;•&nbsp; 🧮 Joint & Disjoint Sets &nbsp;•&nbsp; ✨ Interactive Learning Module</span>
+        </div>
+        <div class="lang-toggle">
+            <button class="lang-btn active" data-lang="en">🇬🇧 English</button>
+            <button class="lang-btn" data-lang="ne">🇳🇵 नेपाली</button>
+        </div>
+    </div>
+
+    <div class="stage-progress" id="progressBar">
+        <div class="step active" data-step="0"><span class="lang-en">1. Intro</span><span class="lang-ne">१. परिचय</span></div>
+        <div class="step locked" data-step="1"><span class="lang-en">2. Venn</span><span class="lang-ne">२. भेन</span></div>
+        <div class="step locked" data-step="2"><span class="lang-en">3. Generator</span><span class="lang-ne">३. जेनरेटर</span></div>
+        <div class="step locked" data-step="3"><span class="lang-en">4. Practice</span><span class="lang-ne">४. अभ्यास</span></div>
+        <div class="step locked" data-step="4"><span class="lang-en">5. Report</span><span class="lang-ne">५. प्रतिवेदन</span></div>
+    </div>
+
+    <div class="content" id="stageContent"></div>
+</div>
+<script>
+    (function() {
+        // ----- Language Dictionary -----
+        const langDict = {
+            en: {
+                // Common
+                continue: "Continue →",
+                submit: "Submit",
+                next: "Next →",
+                restart: "🔄 Restart Lesson",
+                review: "📖 Review Mistakes",
+                practiceAgain: "🎯 Practice Again",
+                // Stage 0
+                introTitle: "🔢 Sets · Joint & Disjoint",
+                whatIsSet: "What is a set?",
+                setDef: "A well-defined collection of distinct objects.",
+                examples: "Examples:",
+                counterExamples: "NOT a set:",
+                setBuilder: "Set-builder tooltip:",
+                quickCheck: "📝 Quick Check",
+                q1: "1. Which is a set?",
+                q1a: "A) {1,2,3}",
+                q1b: "B) \"nice numbers\"",
+                q2: "2. Set of even numbers less than 6?",
+                q2a: "A) {2,4,6}",
+                q2b: "B) {2,4}",
+                hintSet: "💡 A set must be well-defined: {1,2,3} is clear.",
+                hintEven: "💡 Even numbers less than 6: 2,4",
+                correct: "✅ Great! All correct.",
+                // Stage 1
+                vennTitle: "📊 Venn Diagrams",
+                joint: "🔗 Joint",
+                disjoint: "🚫 Disjoint",
+                subset: "⊆ Subset",
+                random: "🎲 Random",
+                resetPos: "↺ Reset Positions",
+                dragHint: "🖱️ Drag elements to adjust their position if needed",
+                jointSets: "🔗 Joint Sets",
+                disjointSets: "🚫 Disjoint Sets",
+                subsetSets: "⊆ Subset",
+                // Quiz
+                qJoint: "1. Joint sets have ...",
+                qJointA: "A) common elements",
+                qJointB: "B) no common elements",
+                qDisjoint: "2. Disjoint sets ...",
+                qDisjointA: "A) overlap each other",
+                qDisjointB: "B) have no overlap",
+                qUniversal: "3. The universal set is represented by ...",
+                qUniversalA: "A) U",
+                qUniversalB: "B) ∩",
+                quizDone: "✅ Well done! All correct.",
+                // Practice
+                practiceTitle: "📝 Practice",
+                selectOption: "💡 Select an option.",
+                correctAnswer: "✅ Correct! ⭐",
+                wrongAnswer: "❌ Not quite. Hint: ",
+                // Report
+                reportTitle: "🏁 Final Report",
+                score: "Score",
+                stars: "Stars",
+                perfect: "🎉 Perfect! No mistakes!",
+                reviewTitle: "📝 Questions to Review:",
+                noMistakes: "🎉 No mistakes! Perfect score!"
+            },
+            ne: {
+                // Common
+                continue: "अगाडि बढ्नुहोस् →",
+                submit: "पेश गर्नुहोस्",
+                next: "अर्को →",
+                restart: "🔄 पुनः सुरु गर्नुहोस्",
+                review: "📖 गल्तीहरू हेर्नुहोस्",
+                practiceAgain: "🎯 फेरि अभ्यास गर्नुहोस्",
+                // Stage 0
+                introTitle: "🔢 समुह · खप्टिएका समूह र अलग्गिएका समूह",
+                whatIsSet: "समुह भनेको के हो?",
+                setDef: "विभिन्न वस्तुहरूको राम्रोसँग परिभाषित सङ्कलन नै समूह हो।",
+                examples: "उदाहरणहरू:",
+                counterExamples: "समुह होइन:",
+                setBuilder: "समूह निर्माण विधि:",
+                quickCheck: "📝 छोटो जाँच",
+                q1: "१. कुन समुह हो?",
+                q1a: "A) {१,२,३}",
+                q1b: "B) \"राम्रो सङ्ख्याहरू\"",
+                q2: "२. ६ भन्दा साना जोर सङ्ख्याहरूको सूची?",
+                q2a: "A) {२,४,६}",
+                q2b: "B) {२,४}",
+                hintSet: "💡 समुह राम्रोसँग परिभाषित हुनुपर्छ: {१,२,३} स्पष्ट छ।",
+                hintEven: "💡 ६ भन्दा साना जोर सङ्ख्याहरूको समूह: २,४",
+                correct: "✅ राम्रो! सबै सही।",
+                // Stage 1
+                vennTitle: "📊 भेन चित्र",
+                joint: "🔗 खप्टिएका",
+                disjoint: "🚫 अलग्गिएका",
+                subset: "⊆ उपसमुह",
+                random: "🎲 अनियमित",
+                resetPos: "↺ स्थान पुन:स्थापित",
+                dragHint: "🖱️ आवश्यक परे तत्वहरू तान्नुहोस्",
+                jointSets: "🔗 खप्टिएका समुह",
+                disjointSets: "🚫 अलग्गिएका समुह",
+                subsetSets: "⊆ उपसमुह",
+                // Quiz
+                qJoint: "१. खप्टिएका समुहमा ...",
+                qJointA: "A) साझा तत्वहरू",
+                qJointB: "B) कुनै साझा सदस्य छैन",
+                qDisjoint: "२. अलग्गिएका समुह ...",
+                qDisjointA: "A) एकअर्कामा ओभरल्याप हुन्छन्",
+                qDisjointB: "B) कुनै ओभरल्याप छैन",
+                qUniversal: "३. सर्वव्यापक समुहलाई ... ले जनाउँछ",
+                qUniversalA: "A) U",
+                qUniversalB: "B) ∩",
+                quizDone: "✅ राम्रो! सबै सही।",
+                // Practice
+                practiceTitle: "📝 अभ्यास",
+                selectOption: "💡 एउटा विकल्प छान्नुहोस्।",
+                correctAnswer: "✅ सही! ⭐",
+                wrongAnswer: "❌ गलत। सङ्केत: ",
+                // Report
+                reportTitle: "🏁 अन्तिम प्रतिवेदन",
+                score: "अंक",
+                stars: "ताराहरू",
+                perfect: "🎉 उत्कृष्ट! कुनै गल्ती छैन!",
+                reviewTitle: "📝 समीक्षा गर्न प्रश्नहरू:",
+                noMistakes: "🎉 कुनै गल्ती छैन! उत्कृष्ट अंक!"
+            }
+        };
+
+        let currentLang = 'en';
+        let currentStage = 0;
+        let unlockedStage = 0;
+        let practiceData = [];
+        let practiceIndex = 0;
+        let practiceScore = 0;
+        let practiceStars = 0;
+        let practiceWrong = [];
+        let practiceAnswered = false;
+        let practiceCompleted = false;
+
+        const content = document.getElementById('stageContent');
+        const progressSteps = document.querySelectorAll('.step');
+        const app = document.getElementById('app');
+
+        // Drag state
+        let dragState = {
+            active: false,
+            element: null,
+            startX: 0,
+            startY: 0,
+            offsetX: 0,
+            offsetY: 0
+        };
+
+        // ----- Language Toggle -----
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentLang = this.dataset.lang;
+                app.setAttribute('data-lang', currentLang);
+                renderStage();
+            });
+        });
+
+        function t(key) {
+            return langDict[currentLang]?.[key] || key;
+        }
+
+        function updateProgress() {
+            progressSteps.forEach((el, i) => {
+                el.classList.remove('active','done','locked');
+                if (i === currentStage) el.classList.add('active');
+                else if (i < currentStage || (i === 4 && practiceCompleted)) el.classList.add('done');
+                else if (i > unlockedStage) el.classList.add('locked');
+                else el.classList.add('done');
+            });
+        }
+
+        function renderStage() {
+            switch(currentStage) {
+                case 0: renderIntro(); break;
+                case 1: renderVennStage(); break;
+                case 2: renderGenerator(); break;
+                case 3: renderPractice(); break;
+                case 4: renderReport(); break;
+                default: renderIntro();
+            }
+            updateProgress();
+        }
+
+        function goToStage(idx) {
+            if (idx > unlockedStage) return;
+            currentStage = idx;
+            renderStage();
+        }
+
+        function unlockNext() {
+            if (unlockedStage < 4) unlockedStage++;
+            if (currentStage < unlockedStage) currentStage = unlockedStage;
+            renderStage();
+        }
+
+        // ----- Drag functionality -----
+        function setupDrag(svgElement) {
+            svgElement.addEventListener('mousedown', startDrag);
+            svgElement.addEventListener('touchstart', startDrag, { passive: false });
+            document.addEventListener('mousemove', moveDrag);
+            document.addEventListener('touchmove', moveDrag, { passive: false });
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+        }
+
+        function startDrag(e) {
+            const target = e.target;
+            if (!target.classList || !(target.classList.contains('element-badge') || target.classList.contains('outside-element'))) return;
+
+            e.preventDefault();
+
+            const svg = target.closest('svg');
+            if (!svg) return;
+
+            const rect = svg.getBoundingClientRect();
+            const scaleX = svg.viewBox.baseVal.width / rect.width;
+            const scaleY = svg.viewBox.baseVal.height / rect.height;
+
+            const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+
+            const svgX = (clientX - rect.left) * scaleX;
+            const svgY = (clientY - rect.top) * scaleY;
+
+            dragState.active = true;
+            dragState.element = target;
+            dragState.offsetX = parseFloat(target.getAttribute('x')) - svgX;
+            dragState.offsetY = parseFloat(target.getAttribute('y')) - svgY;
+
+            target.classList.add('dragging');
+        }
+
+        function moveDrag(e) {
+            if (!dragState.active || !dragState.element) return;
+
+            e.preventDefault();
+
+            const svg = dragState.element.closest('svg');
+            if (!svg) return;
+
+            const rect = svg.getBoundingClientRect();
+            const scaleX = svg.viewBox.baseVal.width / rect.width;
+            const scaleY = svg.viewBox.baseVal.height / rect.height;
+
+            const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+
+            let svgX = (clientX - rect.left) * scaleX;
+            let svgY = (clientY - rect.top) * scaleY;
+
+            svgX = Math.max(20, Math.min(380, svgX + dragState.offsetX));
+            svgY = Math.max(20, Math.min(300, svgY + dragState.offsetY));
+
+            dragState.element.setAttribute('x', svgX);
+            dragState.element.setAttribute('y', svgY);
+        }
+
+        function endDrag(e) {
+            if (dragState.active && dragState.element) {
+                dragState.element.classList.remove('dragging');
+                dragState.active = false;
+                dragState.element = null;
+            }
+        }
+
+        function generateRandomSets() {
+            const allElements = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14'];
+            const shuffled = allElements.sort(() => Math.random() - 0.5);
+            const uSize = 10 + Math.floor(Math.random() * 4);
+            const u = shuffled.slice(0, uSize);
+
+            const type = Math.random();
+            let a, b, isJoint = false, isSubset = false;
+
+            if (type < 0.33) {
+                isJoint = true;
+                const overlapSize = Math.min(2 + Math.floor(Math.random() * 2), Math.floor(u.length * 0.3));
+                const overlap = u.slice(0, overlapSize);
+                const remaining = u.slice(overlapSize);
+                const aSize = Math.min(overlapSize + 2 + Math.floor(Math.random() * 2), remaining.length);
+                const bSize = Math.min(overlapSize + 2 + Math.floor(Math.random() * 2), remaining.length - (aSize - overlapSize));
+                const aRemaining = remaining.slice(0, Math.min(aSize - overlapSize, remaining.length));
+                const bRemaining = remaining.slice(aRemaining.length, aRemaining.length + Math.min(bSize - overlapSize, remaining.length - aRemaining.length));
+                a = [...overlap, ...aRemaining];
+                b = [...overlap, ...bRemaining];
+            } else if (type < 0.66) {
+                isJoint = false;
+                const mid = Math.floor(u.length / 2) + Math.floor(Math.random() * 2);
+                const aSize = 2 + Math.floor(Math.random() * 3);
+                const bSize = 2 + Math.floor(Math.random() * 3);
+                a = u.slice(0, Math.min(aSize, mid));
+                b = u.slice(mid, Math.min(mid + bSize, u.length));
+            } else {
+                isJoint = true;
+                isSubset = true;
+                if (Math.random() < 0.5) {
+                    const bSize = 4 + Math.floor(Math.random() * 4);
+                    b = u.slice(0, Math.min(bSize, u.length));
+                    const aSize = 2 + Math.floor(Math.random() * Math.min(3, b.length - 1));
+                    a = b.slice(0, Math.min(aSize, b.length));
+                } else {
+                    const aSize = 4 + Math.floor(Math.random() * 4);
+                    a = u.slice(0, Math.min(aSize, u.length));
+                    const bSize = 2 + Math.floor(Math.random() * Math.min(3, a.length - 1));
+                    b = a.slice(0, Math.min(bSize, a.length));
+                }
+            }
+
+            if (a.length === 0) a = [u[0]];
+            if (b.length === 0) b = [u[u.length-1]];
+
+            return { u, a, b, isJoint, isSubset };
+        }
+
+        function renderVennElements(svg, u, a, b, isJoint, isSubset) {
+            svg.querySelectorAll('.element-badge, .outside-element, .region-label').forEach(el => el.remove());
+
+            const aSet = new Set(a);
+            const bSet = new Set(b);
+            const uSet = new Set(u);
+            const inter = new Set([...aSet].filter(x => bSet.has(x)));
+            const onlyA = new Set([...aSet].filter(x => !bSet.has(x)));
+            const onlyB = new Set([...bSet].filter(x => !aSet.has(x)));
+            const outside = new Set([...uSet].filter(x => !aSet.has(x) && !bSet.has(x)));
+
+            const isASubsetB = [...aSet].every(x => bSet.has(x));
+            const isBSubsetA = [...bSet].every(x => aSet.has(x));
+
+            let positions;
+            if (isASubsetB || isBSubsetA) {
+                positions = {
+                    inner: [{x: 195, y: 155}, {x: 195, y: 180}, {x: 195, y: 205}, {x: 210, y: 165}, {x: 210, y: 190}],
+                    outerRemaining: [{x: 240, y: 140}, {x: 248, y: 165}, {x: 240, y: 190}, {x: 255, y: 150}, {x: 255, y: 175}],
+                    outside: [{x: 65, y: 90}, {x: 78, y: 80}, {x: 310, y: 90}, {x: 330, y: 80}, {x: 65, y: 250}, {x: 80, y: 265}, {x: 310, y: 250}, {x: 330, y: 265}]
+                };
+            } else {
+                positions = {
+                    onlyA: [{x: 100, y: 140}, {x: 95, y: 168}, {x: 100, y: 196}, {x: 118, y: 148}, {x: 118, y: 180}],
+                    inter: [{x: 188, y: 148}, {x: 188, y: 176}, {x: 188, y: 200}, {x: 205, y: 160}, {x: 205, y: 188}],
+                    onlyB: [{x: 275, y: 140}, {x: 280, y: 168}, {x: 275, y: 196}, {x: 258, y: 148}, {x: 258, y: 180}],
+                    outside: [{x: 65, y: 90}, {x: 78, y: 80}, {x: 310, y: 90}, {x: 330, y: 80}, {x: 65, y: 250}, {x: 80, y: 265}, {x: 310, y: 250}, {x: 330, y: 265}]
+                };
+            }
+
+            // Add region labels
+            const labels = [];
+            if (isASubsetB) {
+                labels.push({text: 'A ⊆ B', x: 195, y: 125, color: '#3a3a5a'});
+                labels.push({text: 'A (inner)', x: 180, y: 140, color: '#1a5a8a'});
+                labels.push({text: 'B−A', x: 250, y: 130, color: '#8a2a2a'});
+            } else if (isBSubsetA) {
+                labels.push({text: 'B ⊆ A', x: 195, y: 125, color: '#3a3a5a'});
+                labels.push({text: 'B (inner)', x: 180, y: 140, color: '#8a2a2a'});
+                labels.push({text: 'A−B', x: 250, y: 130, color: '#1a5a8a'});
+            } else {
+                if (onlyA.size > 0) labels.push({text: 'A-B', x: 90, y: 120, color: '#1a5a8a'});
+                if (inter.size > 0 && isJoint && !isSubset) {
+                    labels.push({text: 'A∩B', x: 190, y: 125, color: '#1a7a3a'});
+                }
+                if (onlyB.size > 0) labels.push({text: 'B-A', x: 290, y: 120, color: '#8a2a2a'});
+            }
+            if (outside.size > 0) labels.push({text: "(A∪B)'", x: 70, y: 75, color: '#4a6a7a'});
+
+            labels.forEach(label => {
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', label.x);
+                text.setAttribute('y', label.y);
+                text.setAttribute('class', 'region-label');
+                text.setAttribute('fill', label.color);
+                text.setAttribute('font-size', '11');
+                text.setAttribute('font-weight', '700');
+                text.setAttribute('opacity', '0.7');
+                text.textContent = label.text;
+                svg.appendChild(text);
+            });
+
+            function createDraggableElement(x, y, text, className, fillColor) {
+                const el = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                el.setAttribute('x', x);
+                el.setAttribute('y', y);
+                el.setAttribute('class', className);
+                el.setAttribute('fill', fillColor);
+                el.setAttribute('font-size', '13');
+                el.setAttribute('font-weight', '600');
+                el.setAttribute('text-anchor', 'middle');
+                el.setAttribute('dominant-baseline', 'central');
+                el.textContent = text;
+                return el;
+            }
+
+            if (isASubsetB) {
+                let idx = 0;
+                aSet.forEach(el => {
+                    if (idx < positions.inner.length) {
+                        const pos = positions.inner[idx];
+                        const textEl = createDraggableElement(pos.x, pos.y, el, 'element-badge', '#1a5a8a');
+                        svg.appendChild(textEl);
+                        idx++;
+                    }
+                });
+
+                idx = 0;
+                onlyB.forEach(el => {
+                    if (idx < positions.outerRemaining.length) {
+                        const pos = positions.outerRemaining[idx];
+                        const textEl = createDraggableElement(pos.x, pos.y, el, 'element-badge', '#8a2a2a');
+                        svg.appendChild(textEl);
+                        idx++;
+                    }
+                });
+            } else if (isBSubsetA) {
+                let idx = 0;
+                bSet.forEach(el => {
+                    if (idx < positions.inner.length) {
+                        const pos = positions.inner[idx];
+                        const textEl = createDraggableElement(pos.x, pos.y, el, 'element-badge', '#8a2a2a');
+                        svg.appendChild(textEl);
+                        idx++;
+                    }
+                });
+
+                idx = 0;
+                onlyA.forEach(el => {
+                    if (idx < positions.outerRemaining.length) {
+                        const pos = positions.outerRemaining[idx];
+                        const textEl = createDraggableElement(pos.x, pos.y, el, 'element-badge', '#1a5a8a');
+                        svg.appendChild(textEl);
+                        idx++;
+                    }
+                });
+            } else {
+                let idx = 0;
+                onlyA.forEach(el => {
+                    if (idx < positions.onlyA.length) {
+                        const pos = positions.onlyA[idx];
+                        const textEl = createDraggableElement(pos.x, pos.y, el, 'element-badge', '#1a5a8a');
+                        svg.appendChild(textEl);
+                        idx++;
+                    }
+                });
+
+                idx = 0;
+                inter.forEach(el => {
+                    if (idx < positions.inter.length && isJoint && !isSubset) {
+                        const pos = positions.inter[idx];
+                        const textEl = createDraggableElement(pos.x, pos.y, el, 'element-badge', '#1a7a3a');
+                        textEl.setAttribute('font-weight', '700');
+                        svg.appendChild(textEl);
+                        idx++;
+                    }
+                });
+
+                idx = 0;
+                onlyB.forEach(el => {
+                    if (idx < positions.onlyB.length) {
+                        const pos = positions.onlyB[idx];
+                        const textEl = createDraggableElement(pos.x, pos.y, el, 'element-badge', '#8a2a2a');
+                        svg.appendChild(textEl);
+                        idx++;
+                    }
+                });
+            }
+
+            let idx = 0;
+            outside.forEach(el => {
+                if (idx < positions.outside.length) {
+                    const pos = positions.outside[idx];
+                    const textEl = createDraggableElement(pos.x, pos.y, el, 'outside-element', '#4a6a7a');
+                    textEl.setAttribute('font-size', '12');
+                    svg.appendChild(textEl);
+                    idx++;
+                }
+            });
+        }
+
+        // ----- Stage 0: Intro -----
+        function renderIntro() {
+            let html = `<h2>${t('introTitle')}</h2>
+                <div class="desc"><strong>${t('whatIsSet')}</strong> ${t('setDef')}</div>
+                <div class="card-grid">
+                    <div class="card">✅ Vowels: {a,e,i,o,u}</div>
+                    <div class="card">✅ Even < 10: {2,4,6,8}</div>
+                    <div class="card">✅ Planets: {Mercury, Venus, ...}</div>
+                </div>
+                <div class="card-grid">
+                    <div class="card" style="background:#fde8e8;">❌ "beautiful flowers" <br><small>subjective</small></div>
+                    <div class="card" style="background:#fde8e8;">❌ "tall students" <br><small>no clear height</small></div>
+                </div>
+                <div class="flex-row"><div class="info-badge">📘 Set: {2,4,6,8} &nbsp;|&nbsp; Descriptive: even numbers < 10 &nbsp;|&nbsp; Set-builder: {x | x even, x<10}</div></div>
+                <div class="mt-3"><p><strong>${t('setBuilder')}</strong> { x | x is even, x<10 } → "x such that ..."</p></div>
+                <div class="mt-3 quiz-container">
+                    <h3 style="margin-bottom:16px;">${t('quickCheck')}</h3>
+                    <div id="quiz0">
+                        <div style="font-weight:500;margin:8px 0;">${t('q1')}</div>
+                        <div class="quiz-option" data-q="0" data-answer="a">${t('q1a')}</div>
+                        <div class="quiz-option" data-q="0" data-answer="b">${t('q1b')}</div>
+
+                        <div style="font-weight:500;margin:12px 0 8px;">${t('q2')}</div>
+                        <div class="quiz-option" data-q="1" data-answer="a">${t('q2a')}</div>
+                        <div class="quiz-option" data-q="1" data-answer="b">${t('q2b')}</div>
+
+                        <div id="quiz0Feedback" class="feedback hidden"></div>
+                    </div>
+                    <button class="btn btn-primary" id="introContinue" disabled style="margin-top:16px;">${t('continue')}</button>
+                </div>`;
+            content.innerHTML = html;
+
+            const opts = document.querySelectorAll('#quiz0 .quiz-option');
+            let answers = [false, false];
+            opts.forEach(el => {
+                el.addEventListener('click', function() {
+                    const q = parseInt(this.dataset.q);
+                    const ans = this.dataset.answer;
+                    const correct = (q===0 && ans==='a') || (q===1 && ans==='b');
+                    if (correct) {
+                        this.classList.add('correct');
+                        answers[q] = true;
+                    } else {
+                        this.classList.add('wrong');
+                        setTimeout(() => this.classList.remove('wrong'), 500);
+                        document.getElementById('quiz0Feedback').classList.remove('hidden');
+                        document.getElementById('quiz0Feedback').innerHTML = q===0 ? t('hintSet') : t('hintEven');
+                    }
+                    if (answers[0] && answers[1]) {
+                        document.getElementById('introContinue').disabled = false;
+                        document.getElementById('quiz0Feedback').innerHTML = t('correct');
+                    }
+                });
+            });
+            document.getElementById('introContinue').addEventListener('click', function() {
+                if (!this.disabled) unlockNext();
+            });
+        }
+
+        // ----- Stage 1: Venn -----
+        function renderVennStage() {
+            const randomSets = generateRandomSets();
+
+            let html = `<h2>${t('vennTitle')}</h2>
+                <div class="venn-container">
+                    <div class="set-display">U = {${randomSets.u.join(', ')}}</div>
+                    <div class="set-display">A = {${randomSets.a.join(', ')}} &nbsp;|&nbsp; B = {${randomSets.b.join(', ')}}</div>
+                    <div class="drag-hint">${t('dragHint')}</div>
+                    <div class="legend">
+                        <div class="legend-item"><div class="legend-color" style="background:#4a8fc9;"></div><span>A − B</span></div>
+                        <div class="legend-item"><div class="legend-color" style="background:#4ac98a;"></div><span>A ∩ B</span></div>
+                        <div class="legend-item"><div class="legend-color" style="background:#c94a4a;"></div><span>B − A</span></div>
+                        <div class="legend-item"><div class="legend-color" style="background:#8a9aa8;"></div><span>(A ∪ B)′</span></div>
+                    </div>
+                    <div class="venn-controls">
+                        <button class="btn btn-primary" id="vennJoint">${t('joint')}</button>
+                        <button class="btn btn-primary" id="vennDisjoint">${t('disjoint')}</button>
+                        <button class="btn btn-purple" id="vennSubset">${t('subset')}</button>
+                        <button class="btn btn-success" id="vennRandom">${t('random')}</button>
+                        <button class="btn btn-warning" id="vennResetPositions">${t('resetPos')}</button>
+                    </div>
+                    <svg viewBox="0 0 400 320" id="vennSvg" style="max-width:580px;background:#f6faff;border-radius:32px;">
+                        <rect x="40" y="40" width="320" height="240" fill="#dbe7f5" stroke="#2a5f7a" stroke-width="2.5" rx="4" />
+                        <text x="50" y="70" font-size="18" font-weight="bold" fill="#1a3344">U</text>
+                        <circle cx="150" cy="170" r="75" fill="#4a8fc9" opacity="0.3" stroke="#2a5f7a" stroke-width="2.5"/>
+                        <text x="120" y="105" font-size="18" font-weight="bold" fill="#1a3344">A</text>
+                        <circle cx="250" cy="170" r="75" fill="#c94a4a" opacity="0.3" stroke="#2a5f7a" stroke-width="2.5"/>
+                        <text x="260" y="105" font-size="18" font-weight="bold" fill="#1a3344">B</text>
+                        <clipPath id="interClip"><circle cx="150" cy="170" r="75" /></clipPath>
+                        <circle cx="250" cy="170" r="75" fill="#4ac98a" opacity="0.4" clip-path="url(#interClip)" id="interOverlay"/>
+                        <text id="interLabel" x="185" y="175" font-size="15" font-weight="bold" fill="#1a7a3a">A∩B</text>
+                    </svg>
+                    <div id="statusBadge" class="status-badge status-joint">${t('jointSets')}</div>
+                    <div class="desc" id="vennCaption" style="text-align:center;">Click buttons to see different set relationships. Drag any element to reposition.</div>
+                </div>
+                <div class="mt-3 quiz-container">
+                    <h3 style="margin-bottom:16px;">${t('quickCheck')}</h3>
+                    <div id="vennQuiz">
+                        <div style="font-weight:500;margin:8px 0;">${t('qJoint')}</div>
+                        <div class="quiz-option" data-vq="0" data-vans="a">${t('qJointA')}</div>
+                        <div class="quiz-option" data-vq="0" data-vans="b">${t('qJointB')}</div>
+
+                        <div style="font-weight:500;margin:12px 0 8px;">${t('qDisjoint')}</div>
+                        <div class="quiz-option" data-vq="1" data-vans="a">${t('qDisjointA')}</div>
+                        <div class="quiz-option" data-vq="1" data-vans="b">${t('qDisjointB')}</div>
+
+                        <div style="font-weight:500;margin:12px 0 8px;">${t('qUniversal')}</div>
+                        <div class="quiz-option" data-vq="2" data-vans="a">${t('qUniversalA')}</div>
+                        <div class="quiz-option" data-vq="2" data-vans="b">${t('qUniversalB')}</div>
+
+                        <div id="vennQuizFeedback" class="feedback hidden"></div>
+                    </div>
+                    <button class="btn btn-primary" id="vennContinue" disabled style="margin-top:16px;">${t('continue')}</button>
+                </div>`;
+            content.innerHTML = html;
+
+            let vq = [false, false, false];
+            document.querySelectorAll('#vennQuiz .quiz-option').forEach(el => {
+                el.addEventListener('click', function() {
+                    const idx = parseInt(this.dataset.vq);
+                    const correct = this.dataset.vans === this.innerText.trim().toLowerCase().charAt(0);
+                    if (correct) {
+                        this.classList.add('correct');
+                        vq[idx] = true;
+                    } else {
+                        this.classList.add('wrong');
+                        setTimeout(()=>this.classList.remove('wrong'),400);
+                    }
+                    if (vq.every(v=>v)) {
+                        document.getElementById('vennContinue').disabled = false;
+                        document.getElementById('vennQuizFeedback').innerHTML = t('quizDone');
+                        document.getElementById('vennQuizFeedback').classList.remove('hidden');
+                    }
+                });
+            });
+            document.getElementById('vennContinue').addEventListener('click', function() { if(!this.disabled) unlockNext(); });
+
+            const svg = document.getElementById('vennSvg');
+            const circleA = svg.querySelector('circle:nth-of-type(1)');
+            const circleB = svg.querySelector('circle:nth-of-type(2)');
+            const interOverlay = document.getElementById('interOverlay');
+            const interLabel = document.getElementById('interLabel');
+            const statusBadge = document.getElementById('statusBadge');
+
+            setupDrag(svg);
+
+            function updateVennWithSets(u, a, b, isJoint, isSubset) {
+                const displayU = document.querySelector('.set-display:nth-of-type(1)');
+                const displayAB = document.querySelector('.set-display:nth-of-type(2)');
+                displayU.innerHTML = `U = {${u.join(', ')}}`;
+                displayAB.innerHTML = `A = {${a.join(', ')}} &nbsp;|&nbsp; B = {${b.join(', ')}}`;
+
+                const aSet = new Set(a);
+                const bSet = new Set(b);
+                const isASubsetB = [...aSet].every(x => bSet.has(x));
+                const isBSubsetA = [...bSet].every(x => aSet.has(x));
+                const isProperSubset = isASubsetB || isBSubsetA;
+
+                if (isProperSubset) {
+                    interOverlay.classList.add('hidden');
+                    interLabel.classList.add('hidden');
+
+                    if (isASubsetB) {
+                        circleA.setAttribute('cx', '200');
+                        circleA.setAttribute('cy', '170');
+                        circleA.setAttribute('r', '45');
+                        circleA.setAttribute('fill', '#4a8fc9');
+                        circleA.setAttribute('opacity', '0.4');
+                        circleB.setAttribute('cx', '200');
+                        circleB.setAttribute('cy', '170');
+                        circleB.setAttribute('r', '75');
+                        circleB.setAttribute('fill', '#c94a4a');
+                        circleB.setAttribute('opacity', '0.3');
+                        statusBadge.className = 'status-badge status-subset';
+                        statusBadge.textContent = '⊆ A ⊆ B (A is subset of B)';
+                        document.getElementById('vennCaption').innerHTML = '⊆ <strong>Improper Subset</strong>: A is completely contained within B. A∩B = A. Drag elements to adjust.';
+                    } else if (isBSubsetA) {
+                        circleA.setAttribute('cx', '200');
+                        circleA.setAttribute('cy', '170');
+                        circleA.setAttribute('r', '75');
+                        circleA.setAttribute('fill', '#4a8fc9');
+                        circleA.setAttribute('opacity', '0.3');
+                        circleB.setAttribute('cx', '200');
+                        circleB.setAttribute('cy', '170');
+                        circleB.setAttribute('r', '45');
+                        circleB.setAttribute('fill', '#c94a4a');
+                        circleB.setAttribute('opacity', '0.4');
+                        statusBadge.className = 'status-badge status-subset';
+                        statusBadge.textContent = '⊆ B ⊆ A (B is subset of A)';
+                        document.getElementById('vennCaption').innerHTML = '⊆ <strong>Improper Subset</strong>: B is completely contained within A. A∩B = B. Drag elements to adjust.';
+                    }
+                } else if (isJoint) {
+                    circleA.setAttribute('cx', '150');
+                    circleA.setAttribute('cy', '170');
+                    circleA.setAttribute('r', '75');
+                    circleA.setAttribute('fill', '#4a8fc9');
+                    circleA.setAttribute('opacity', '0.3');
+                    circleB.setAttribute('cx', '250');
+                    circleB.setAttribute('cy', '170');
+                    circleB.setAttribute('r', '75');
+                    circleB.setAttribute('fill', '#c94a4a');
+                    circleB.setAttribute('opacity', '0.3');
+                    interOverlay.classList.remove('hidden');
+                    interLabel.classList.remove('hidden');
+                    interLabel.textContent = 'A∩B';
+                    interLabel.setAttribute('fill', '#1a7a3a');
+                    statusBadge.className = 'status-badge status-joint';
+                    statusBadge.textContent = '🔗 ' + t('jointSets');
+                    document.getElementById('vennCaption').innerHTML = '🔗 <strong>Joint Sets</strong>: A and B share common elements. A∩B is shown in <span style="color:#4ac98a;font-weight:700;">green</span>. Drag elements to adjust.';
+                } else {
+                    circleA.setAttribute('cx', '115');
+                    circleA.setAttribute('cy', '170');
+                    circleA.setAttribute('r', '75');
+                    circleA.setAttribute('fill', '#4a8fc9');
+                    circleA.setAttribute('opacity', '0.3');
+                    circleB.setAttribute('cx', '285');
+                    circleB.setAttribute('cy', '170');
+                    circleB.setAttribute('r', '75');
+                    circleB.setAttribute('fill', '#c94a4a');
+                    circleB.setAttribute('opacity', '0.3');
+                    interOverlay.classList.add('hidden');
+                    interLabel.classList.add('hidden');
+                    statusBadge.className = 'status-badge status-disjoint';
+                    statusBadge.textContent = '🚫 ' + t('disjointSets');
+                    document.getElementById('vennCaption').innerHTML = '🚫 <strong>Disjoint Sets</strong>: A and B have no common elements. Drag elements to adjust.';
+                }
+
+                renderVennElements(svg, u, a, b, isJoint, isProperSubset);
+            }
+
+            function setJoint() {
+                const sets = generateRandomSets();
+                let a = [...sets.a];
+                let b = [...sets.b];
+                const inter = a.filter(x => b.includes(x));
+                if (inter.length === 0 && a.length > 0 && b.length > 0) {
+                    const overlap = a[0];
+                    b.push(overlap);
+                }
+                updateVennWithSets(sets.u, a, b, true, false);
+            }
+
+            function setDisjoint() {
+                const allElements = ['1','2','3','4','5','6','7','8','9','10','11','12'];
+                const shuffled = allElements.sort(() => Math.random() - 0.5);
+                const mid = Math.floor(shuffled.length / 2) + Math.floor(Math.random() * 2);
+                const a = shuffled.slice(0, 2 + Math.floor(Math.random() * 3));
+                const b = shuffled.slice(mid, mid + 2 + Math.floor(Math.random() * 3));
+                const u = [...new Set([...shuffled.slice(0, 8 + Math.floor(Math.random() * 3)), ...a, ...b])];
+                const aSet = new Set(a);
+                const bSet = new Set(b);
+                const finalA = [...aSet];
+                const finalB = [...bSet].filter(x => !aSet.has(x));
+                updateVennWithSets(u, finalA, finalB, false, false);
+            }
+
+            function setSubset() {
+                const allElements = ['1','2','3','4','5','6','7','8','9','10'];
+                const shuffled = allElements.sort(() => Math.random() - 0.5);
+                const u = shuffled.slice(0, 7 + Math.floor(Math.random() * 3));
+                if (Math.random() < 0.5) {
+                    const bSize = 4 + Math.floor(Math.random() * 3);
+                    const b = u.slice(0, Math.min(bSize, u.length));
+                    const aSize = 2 + Math.floor(Math.random() * Math.min(3, b.length - 1));
+                    const a = b.slice(0, Math.min(aSize, b.length));
+                    updateVennWithSets(u, a, b, true, true);
+                } else {
+                    const aSize = 4 + Math.floor(Math.random() * 3);
+                    const a = u.slice(0, Math.min(aSize, u.length));
+                    const bSize = 2 + Math.floor(Math.random() * Math.min(3, a.length - 1));
+                    const b = a.slice(0, Math.min(bSize, a.length));
+                    updateVennWithSets(u, a, b, true, true);
+                }
+            }
+
+            function setRandom() {
+                const sets = generateRandomSets();
+                updateVennWithSets(sets.u, sets.a, sets.b, sets.isJoint, sets.isSubset);
+            }
+
+            function resetPositions() {
+                const displayU = document.querySelector('.set-display:nth-of-type(1)');
+                const displayAB = document.querySelector('.set-display:nth-of-type(2)');
+                const uStr = displayU.textContent.replace('U = {', '').replace('}', '');
+                const abStr = displayAB.textContent;
+                const aMatch = abStr.match(/A = \{([^}]*)\}/);
+                const bMatch = abStr.match(/B = \{([^}]*)\}/);
+                if (aMatch && bMatch) {
+                    const u = uStr.split(',').map(s => s.trim()).filter(Boolean);
+                    const a = aMatch[1].split(',').map(s => s.trim()).filter(Boolean);
+                    const b = bMatch[1].split(',').map(s => s.trim()).filter(Boolean);
+                    const aSet = new Set(a);
+                    const bSet = new Set(b);
+                    const isASubsetB = [...aSet].every(x => bSet.has(x));
+                    const isBSubsetA = [...bSet].every(x => aSet.has(x));
+                    const isSubset = isASubsetB || isBSubsetA;
+                    const inter = new Set([...aSet].filter(x => bSet.has(x)));
+                    const isJoint = inter.size > 0;
+                    updateVennWithSets(u, a, b, isJoint, isSubset);
+                }
+            }
+
+            document.getElementById('vennJoint').addEventListener('click', setJoint);
+            document.getElementById('vennDisjoint').addEventListener('click', setDisjoint);
+            document.getElementById('vennSubset').addEventListener('click', setSubset);
+            document.getElementById('vennRandom').addEventListener('click', setRandom);
+            document.getElementById('vennResetPositions').addEventListener('click', resetPositions);
+            setRandom();
+        }
+
+        // ----- Stage 2: Generator -----
+        function renderGenerator() {
+            let html = `<h2>⚙️ Set Generator</h2>
+                <div class="input-group">
+                    <label>U</label><input id="genU" placeholder="1,2,3,4,5,6,7,8" value="1,2,3,4,5,6,7,8">
+                    <label>A</label><input id="genA" placeholder="1,2,3" value="1,2,3">
+                    <label>B</label><input id="genB" placeholder="3,4,5" value="3,4,5">
+                </div>
+                <div class="flex-row">
+                    <button class="btn btn-primary" id="genBtn">Generate</button>
+                    <button class="btn btn-success" id="genRandom">🎲 Random</button>
+                    <button class="btn" id="genClear">Clear</button>
+                </div>
+                <div id="genResult"><svg viewBox="0 0 400 320" style="max-width:580px;background:#f3f8ff;border-radius:28px;margin:12px 0;">
+                    <rect x="40" y="40" width="320" height="240" fill="#dce6f2" stroke="#2a5f7a" stroke-width="2.5" rx="4" />
+                    <text x="50" y="70" font-size="18" font-weight="bold" fill="#1a3344">U</text>
+                    <circle cx="150" cy="170" r="75" fill="#4a8fc9" opacity="0.3" stroke="#2a5f7a" stroke-width="2.5"/>
+                    <circle cx="250" cy="170" r="75" fill="#c94a4a" opacity="0.3" stroke="#2a5f7a" stroke-width="2.5"/>
+                    <clipPath id="genInterClip"><circle cx="150" cy="170" r="75" /></clipPath>
+                    <circle cx="250" cy="170" r="75" fill="#4ac98a" opacity="0.4" clip-path="url(#genInterClip)" id="genInterOverlay"/>
+                    <text id="genInterLabel" x="185" y="175" font-size="15" font-weight="bold" fill="#1a7a3a">A∩B</text>
+                </svg></div>
+                <div id="genInfo" class="info-badge">Enter sets and generate</div>
+                <button class="btn btn-primary" id="genContinue" disabled style="margin-top:16px;">${t('continue')}</button>`;
+            content.innerHTML = html;
+
+            function validateAndDraw() {
+                const u = document.getElementById('genU').value.split(',').map(s=>s.trim()).filter(Boolean);
+                const a = document.getElementById('genA').value.split(',').map(s=>s.trim()).filter(Boolean);
+                const b = document.getElementById('genB').value.split(',').map(s=>s.trim()).filter(Boolean);
+                const uSet = new Set(u);
+                const aSet = new Set(a);
+                const bSet = new Set(b);
+                let valid = true;
+                let msg = '';
+                [...aSet].forEach(x => { if(!uSet.has(x)) { valid=false; msg+=`A: ${x} not in U. `; }});
+                [...bSet].forEach(x => { if(!uSet.has(x)) { valid=false; msg+=`B: ${x} not in U. `; }});
+                if(!valid) { document.getElementById('genInfo').innerHTML = '⚠️ ' + msg; return; }
+
+                const inter = new Set([...aSet].filter(x => bSet.has(x)));
+                const isJoint = inter.size > 0;
+                const isASubsetB = [...aSet].every(x => bSet.has(x));
+                const isBSubsetA = [...bSet].every(x => aSet.has(x));
+                const isSubset = isASubsetB || isBSubsetA;
+
+                let statusText = '';
+                if (isSubset) {
+                    statusText = isASubsetB ? '⊆ A ⊆ B (A is subset of B)' : '⊆ B ⊆ A (B is subset of A)';
+                } else if (isJoint) {
+                    statusText = `🔗 Joint · |A∩B| = ${inter.size}  (${[...inter].join(', ') || 'empty'})`;
+                } else {
+                    statusText = '🚫 Disjoint · no common elements';
+                }
+                document.getElementById('genInfo').innerHTML = statusText;
+
+                const svg = document.querySelector('#genResult svg');
+                const interOverlay = svg.querySelector('#genInterOverlay');
+                const interLabel = svg.querySelector('#genInterLabel');
+                const circleA = svg.querySelector('circle:nth-of-type(1)');
+                const circleB = svg.querySelector('circle:nth-of-type(2)');
+
+                if (isSubset) {
+                    interOverlay.classList.add('hidden');
+                    interLabel.classList.add('hidden');
+
+                    if (isASubsetB) {
+                        circleA.setAttribute('cx', '200');
+                        circleA.setAttribute('cy', '170');
+                        circleA.setAttribute('r', '45');
+                        circleA.setAttribute('fill', '#4a8fc9');
+                        circleA.setAttribute('opacity', '0.4');
+                        circleB.setAttribute('cx', '200');
+                        circleB.setAttribute('cy', '170');
+                        circleB.setAttribute('r', '75');
+                        circleB.setAttribute('fill', '#c94a4a');
+                        circleB.setAttribute('opacity', '0.3');
+                    } else {
+                        circleA.setAttribute('cx', '200');
+                        circleA.setAttribute('cy', '170');
+                        circleA.setAttribute('r', '75');
+                        circleA.setAttribute('fill', '#4a8fc9');
+                        circleA.setAttribute('opacity', '0.3');
+                        circleB.setAttribute('cx', '200');
+                        circleB.setAttribute('cy', '170');
+                        circleB.setAttribute('r', '45');
+                        circleB.setAttribute('fill', '#c94a4a');
+                        circleB.setAttribute('opacity', '0.4');
+                    }
+                } else if (isJoint) {
+                    circleA.setAttribute('cx', '150');
+                    circleA.setAttribute('cy', '170');
+                    circleA.setAttribute('r', '75');
+                    circleA.setAttribute('fill', '#4a8fc9');
+                    circleA.setAttribute('opacity', '0.3');
+                    circleB.setAttribute('cx', '250');
+                    circleB.setAttribute('cy', '170');
+                    circleB.setAttribute('r', '75');
+                    circleB.setAttribute('fill', '#c94a4a');
+                    circleB.setAttribute('opacity', '0.3');
+                    interOverlay.classList.remove('hidden');
+                    interLabel.classList.remove('hidden');
+                    interLabel.textContent = `A∩B = {${[...inter].join(', ') || '∅'}}`;
+                } else {
+                    circleA.setAttribute('cx', '115');
+                    circleA.setAttribute('cy', '170');
+                    circleA.setAttribute('r', '75');
+                    circleA.setAttribute('fill', '#4a8fc9');
+                    circleA.setAttribute('opacity', '0.3');
+                    circleB.setAttribute('cx', '285');
+                    circleB.setAttribute('cy', '170');
+                    circleB.setAttribute('r', '75');
+                    circleB.setAttribute('fill', '#c94a4a');
+                    circleB.setAttribute('opacity', '0.3');
+                    interOverlay.classList.add('hidden');
+                    interLabel.classList.add('hidden');
+                }
+
+                const aArr = [...aSet];
+                const bArr = [...bSet];
+                renderVennElements(svg, u, aArr, bArr, isJoint, isSubset);
+                setupDrag(svg);
+                document.getElementById('genContinue').disabled = false;
+            }
+
+            document.getElementById('genBtn').addEventListener('click', validateAndDraw);
+            document.getElementById('genRandom').addEventListener('click', ()=>{
+                const sets = generateRandomSets();
+                document.getElementById('genU').value = sets.u.join(',');
+                document.getElementById('genA').value = sets.a.join(',');
+                document.getElementById('genB').value = sets.b.join(',');
+                validateAndDraw();
+            });
+            document.getElementById('genClear').addEventListener('click', ()=>{
+                document.getElementById('genU').value=''; document.getElementById('genA').value=''; document.getElementById('genB').value='';
+                document.getElementById('genInfo').innerHTML='Cleared';
+                document.getElementById('genContinue').disabled = true;
+                const svg = document.querySelector('#genResult svg');
+                svg.querySelectorAll('.element-badge, .outside-element, .region-label').forEach(el => el.remove());
+            });
+            document.getElementById('genContinue').addEventListener('click', function(){ if(!this.disabled) unlockNext(); });
+            setTimeout(validateAndDraw, 100);
+        }
+
+        // ----- Stage 3: Practice -----
+        function renderPractice() {
+            if(practiceData.length===0) {
+                practiceData = [
+                    {q:'A={1,2}, B={2,3}. Joint or Disjoint?', type:'mc', options:['Joint','Disjoint'], ans:0},
+                    {q:'A={1,2}, B={3,4}. Joint or Disjoint?', type:'mc', options:['Joint','Disjoint'], ans:1},
+                    {q:'n(A∩B) if A={1,2,3}, B={3,4,5}', type:'input', ans:'1'},
+                    {q:'Set builder: {x | x even, x<6} set?', type:'mc', options:['{2,4}','{2,4,6}'], ans:0},
+                    {q:'A={a,b,c}, B={c,d,e} Joint?', type:'mc', options:['Yes','No'], ans:0},
+                    {q:'A={1,2}, B={3,4} Disjoint?', type:'mc', options:['Yes','No'], ans:0},
+                    {q:'What is A∪B if A={1,2}, B={3,4}?', type:'mc', options:['{1,2,3,4}','{1,2}'], ans:0},
+                    {q:'n(A) for A={2,4,6}?', type:'input', ans:'3'},
+                    {q:'Is ∅ a set?', type:'mc', options:['Yes','No'], ans:0},
+                    {q:'A={x: x is a vowel} set?', type:'mc', options:['{a,e,i,o,u}','{a,e}'], ans:0},
+                ];
+                practiceIndex = 0;
+                practiceScore = 0;
+                practiceStars = 0;
+                practiceWrong = [];
+                practiceAnswered = false;
+                practiceCompleted = false;
+            }
+
+            if(practiceIndex >= practiceData.length) {
+                practiceCompleted = true;
+                if (unlockedStage < 4) unlockedStage = 4;
+                goToStage(4);
+                return;
+            }
+
+            const item = practiceData[practiceIndex];
+            let html = `<h2>${t('practiceTitle')} ${practiceIndex+1}/${practiceData.length}</h2>
+                <div class="desc">${item.q}</div>`;
+            if(item.type === 'mc') {
+                html += `<div id="practiceOptions">`;
+                item.options.forEach((opt, i) => {
+                    html += `<div class="quiz-option" data-pidx="${i}">${opt}</div>`;
+                });
+                html += `</div>`;
+            } else {
+                html += `<input id="practiceInput" type="text" placeholder="type answer" style="padding:12px 20px;border-radius:60px;border:1px solid #ccc;font-size:1rem;width:100%;max-width:300px;">`;
+            }
+            html += `<div id="practiceFeedback" class="feedback hidden"></div>
+                <div class="flex-between mt-3">
+                    <span>⭐ ${practiceStars}  ·  ${t('score')} ${practiceScore}</span>
+                    <button class="btn btn-primary" id="practiceSubmit">${t('submit')}</button>
+                    <button class="btn" id="practiceNext" disabled>${t('next')}</button>
+                </div>`;
+            content.innerHTML = html;
+            practiceAnswered = false;
+
+            document.getElementById('practiceSubmit').addEventListener('click', function() {
+                if(practiceAnswered) return;
+                let userAns = '';
+                const item = practiceData[practiceIndex];
+                if(item.type === 'mc') {
+                    const selected = document.querySelector('#practiceOptions .quiz-option.selected');
+                    if(!selected) { document.getElementById('practiceFeedback').innerHTML=t('selectOption'); return; }
+                    userAns = selected.dataset.pidx;
+                } else {
+                    userAns = document.getElementById('practiceInput').value.trim();
+                }
+                const correct = (item.type==='mc') ? (parseInt(userAns)===item.ans) : (userAns===item.ans);
+                const fb = document.getElementById('practiceFeedback');
+                fb.classList.remove('hidden');
+                if(correct) {
+                    fb.innerHTML = t('correctAnswer');
+                    practiceScore++;
+                    practiceStars++;
+                    document.getElementById('practiceNext').disabled = false;
+                    practiceAnswered = true;
+                } else {
+                    fb.innerHTML = t('wrongAnswer') + (item.type==='mc' ? 'review the definition.' : 'check cardinality or set.');
+                    practiceWrong.push(item);
+                }
+                if(item.type==='mc') {
+                    document.querySelectorAll('#practiceOptions .quiz-option').forEach((el, i) => {
+                        if(i===item.ans) el.classList.add('correct');
+                        else if(el.classList.contains('selected')) el.classList.add('wrong');
+                    });
+                }
+            });
+            document.getElementById('practiceNext').addEventListener('click', function() {
+                if(this.disabled) return;
+                practiceIndex++;
+                renderPractice();
+            });
+            if(item.type==='mc') {
+                document.querySelectorAll('#practiceOptions .quiz-option').forEach(el => {
+                    el.addEventListener('click', function() {
+                        document.querySelectorAll('#practiceOptions .quiz-option').forEach(e=>e.classList.remove('selected'));
+                        this.classList.add('selected');
+                    });
+                });
+            }
+        }
+
+        // ----- Stage 4: Report -----
+        function renderReport() {
+            const total = practiceData.length || 10;
+            const pct = total > 0 ? Math.round((practiceScore/total)*100) : 0;
+            let band = 'Keep Practicing';
+            if(pct>=90) band='🌟 Excellent';
+            else if(pct>=70) band='✅ Very Good';
+            else if(pct>=50) band='👍 Good';
+
+            let html = `<h2>${t('reportTitle')}</h2>
+                <div class="report-card">
+                    <div style="font-size:3rem;margin-bottom:16px;">📊</div>
+                    <div class="desc" style="font-size:1.3rem;">${t('score')}: ${practiceScore}/${total}  (${pct}%)</div>
+                    <div style="font-size:2rem;margin:16px 0;">⭐ ${practiceStars} ${t('stars')}</div>
+                    <div class="info-badge" style="font-size:2rem;padding:20px 40px;margin:16px 0;">${band}</div>
+                    <div class="flex-row" style="justify-content:center;margin-top:24px;">
+                        <button class="btn btn-primary" id="reportRestart">${t('restart')}</button>
+                        <button class="btn" id="reportReview">${t('review')} (${practiceWrong.length})</button>
+                        <button class="btn btn-success" id="reportPractice">${t('practiceAgain')}</button>
+                    </div>
+                    ${practiceWrong.length > 0 ? `<div style="margin-top:20px;text-align:left;background:rgba(255,255,255,0.3);padding:16px;border-radius:20px;">
+                        <h4 style="margin-bottom:10px;">${t('reviewTitle')}</h4>
+                        ${practiceWrong.map((w, i) => `<div style="padding:8px 12px;margin:4px 0;background:rgba(255,255,255,0.3);border-radius:12px;">${i+1}. ${w.q}</div>`).join('')}
+                    </div>` : `<div style="margin-top:20px;font-size:1.2rem;color:#2a9d8f;">${t('perfect')}</div>`}
+                </div>`;
+            content.innerHTML = html;
+
+            document.getElementById('reportRestart').addEventListener('click', ()=>{
+                practiceData=[]; practiceIndex=0; practiceScore=0; practiceStars=0; practiceWrong=[]; practiceCompleted=false; unlockedStage=0; currentStage=0; renderStage();
+            });
+            document.getElementById('reportReview').addEventListener('click', ()=>{
+                if(practiceWrong.length===0) alert(t('noMistakes'));
+                else alert('📝 Questions to review:\n\n' + practiceWrong.map((w,i)=>`${i+1}. ${w.q}`).join('\n'));
+            });
+            document.getElementById('reportPractice').addEventListener('click', ()=>{
+                practiceData=[]; practiceIndex=0; practiceScore=0; practiceStars=0; practiceWrong=[]; practiceAnswered=false; practiceCompleted=false; currentStage=3; renderStage();
+            });
+        }
+
+        document.querySelectorAll('.step').forEach((el, idx) => {
+            el.addEventListener('click', function() {
+                const target = parseInt(this.dataset.step);
+                if(target <= unlockedStage || (target === 4 && practiceCompleted)) goToStage(target);
+            });
+        });
+
+        renderStage();
+    })();
+</script>
+</body>
+</html>
